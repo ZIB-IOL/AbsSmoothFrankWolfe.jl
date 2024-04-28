@@ -1,6 +1,6 @@
-include("abs_frank_wolfe.jl")
-include("adolc_call.jl")
-include("plots_JSON.jl")
+include("../src/abs_frank_wolfe.jl")
+include("../src/adolc_call.jl")
+#include("plots_JSON.jl")
 
 enableMinMaxUsingAbs()
 
