@@ -1,7 +1,5 @@
-include("abs_frank_wolfe.jl")
-include("adolc_call.jl")
-
-enableMinMaxUsingAbs()
+include("../src/AbsSmooth_FW.jl")
+include("../src/adolc_call.jl")
 
 # CB3
  function f(x)
@@ -16,27 +14,21 @@ enableMinMaxUsingAbs()
 n = length(x_base)
 
 # call the abs-linear form of f
-abs_normal_problem = call_adolc(x_base, f)
+abs_normal_form = call_adolc(x_base, f) 
+alf_a = abs_normal_form.Y 
+alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1)
+z = abs_normal_form.z  
+s = abs_normal_form.num_switches
+sigma_z = signature_vec(s,z)
 
-Z = abs_normal_problem.Z
-L = abs_normal_problem.L  
-alf_a = abs_normal_problem.Y 
-alf_b = reshape(abs_normal_problem.J, size(abs_normal_problem.J)[2], 1)   
-cy = abs_normal_problem.cy 
-cz = abs_normal_problem.cz 
-z = abs_normal_problem.z 
-y = abs_normal_problem.y 
-s = abs_normal_problem.num_switches
-sigma_z = sign.(z)
-
-# store the abs-smooth gradient
+# gradient formula interms of abs-linearization
 function grad!(storage, x)
     c = vcat(alf_a', alf_b.* sigma_z)
     @. storage = c
 end
 
 # set bounds
-o = Model(GLPK.Optimizer)
+o = Model(HiGHS.Optimizer)
 MOI.set(o, MOI.Silent(), true)
 @variable(o, lb_x[i] <= x[i=1:n] <= ub_x[i])
 
@@ -44,6 +36,7 @@ MOI.set(o, MOI.Silent(), true)
 lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x)
 
 # define termination criteria
+
 # In case we want to stop the frank_wolfe algorithm prematurely after a certain condition is met,
 # we can return a boolean stop criterion `false`.
 # Here, we will implement a callback that terminates the algorithm if ||x_t+1 - x_t|| < eps.
@@ -55,7 +48,7 @@ end
 
 callback = make_termination_callback(FrankWolfe.CallbackState)
 
-# call Frank-Wolfe
+# call abs-smooth-frank-wolfe
 x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     f, 
     grad!, 
@@ -65,7 +58,6 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=1e5
+    max_iteration=10
 )
 
-@show primal
