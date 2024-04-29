@@ -2,8 +2,6 @@ include("../src/abs_frank_wolfe.jl")
 include("../src/adolc_call.jl")
 #include("plots_JSON.jl")
 
-enableMinMaxUsingAbs()
-
 println("")
 println("Chained LQ")
 
@@ -22,11 +20,11 @@ lb_x = [-10 for in in x_base]
 ub_x = [10 for in in x_base]
 n = length(x_base)
 
-abs_normal_problem = call_adolc(x_base, f) 
-alf_a = abs_normal_problem.Y 
-alf_b = reshape(abs_normal_problem.J, size(abs_normal_problem.J)[2], 1)
-z = abs_normal_problem.z  
-s = abs_normal_problem.num_switches
+abs_normal_form = call_adolc(x_base, f) 
+alf_a = abs_normal_form.Y 
+alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1)
+z = abs_normal_form.z  
+s = abs_normal_form.num_switches
 sigma_z = signature_vec(s,z)
 
 # gradient formula interms of abs-linearization
@@ -66,5 +64,5 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=1e5
+    max_iteration=10
 )
