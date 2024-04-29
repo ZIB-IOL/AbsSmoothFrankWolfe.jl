@@ -67,16 +67,16 @@ function aasm(x_base, alpha, f_eval, outer_iter; max_inner_iter=100, model="mode
 #  remaining arguments: function pointer
    
 # abs-linearization of f
-  abs_normal_problem = call_adolc(x_base, f_eval) 
+  abs_normal_form = call_adolc(x_base, f_eval) 
   
-  z = abs_normal_problem.z
-  Z = abs_normal_problem.Z  
-  L = abs_normal_problem.L 
-  alf_a = abs_normal_problem.Y
-  alf_b = reshape(abs_normal_problem.J, size(abs_normal_problem.J)[2], 1) 
-  cz = abs_normal_problem.cz 
-  cy = abs_normal_problem.cy 
-   
+  z = abs_normal_form.z
+  Z = abs_normal_form.Z  
+  L = abs_normal_form.L 
+  alf_a = abs_normal_form.Y
+  alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1) 
+  cz = abs_normal_form.cz 
+  cy = abs_normal_form.cy 
+  
 # to store asm information
   lambdas = []
   solutions = []
@@ -112,10 +112,14 @@ function aasm(x_base, alpha, f_eval, outer_iter; max_inner_iter=100, model="mode
     @constraint(o, xz[1:n] >= max.(alpha*(lb_x-x_base),-1.0e30))         
   
     @constraint(o, sigma_z .* xz[n+1:end] .>= 0) 
-    for i in eachindex(abs_normal_problem.L)
-     abs_normal_problem.L[i]
+    for i in eachindex(abs_normal_form.L)
+     abs_normal_form.L[i]
     end  
-
+    
+    for i in eachindex(abs_normal_form.Z)
+     abs_normal_form.Z[i]
+    end      
+    x_base
     A = [Z L.*sigma_z'-I]
     
     c1 = @constraint(o, A*xz .== -cz)
