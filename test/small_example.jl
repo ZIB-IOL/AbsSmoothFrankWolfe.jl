@@ -1,27 +1,47 @@
 include("../src/AbsSmooth_FW.jl")
-include("../src/adolc_call.jl")
+using ADOLC
 
-# CB3
- function f(x)
- 	return max(x[1]^4+x[2]^2, (2-x[1])^2+(2-x[2])^2, 2*exp(x[2]-x[1]))
- end
+function abs_linearization()
+    # Define the Mifflin 2 function
+    function f(x)
+        return -x[1] + 2*(x[1]^2 + x[2]^2 - 1) + 1.75*abs(x[1]^2 + x[2]^2 - 1)
+    end
+    
+    # Define the derivative evaluation point x
+    x_base = [-1.0,-1.0]
+    n = length(x_base)
+    
+    # Initialize the AbsNormalForm object
+    abs_normal_form = ADOLC.init_abs_normal_form(f, 1, n, x_base, tape_id=1)
+    
+    # Calculate the absolute normal form derivative
+    derivative!(abs_normal_form, f, 1, n, x_base, :abs_normal, tape_id=abs_normal_form.tape_id, reuse_tape=true)
+    
+    println("AbsNormalForm at $x_base: ", abs_normal_form)  
+    
+    z = abs_normal_form.z
+    Z = abs_normal_form.Z  
+    L = abs_normal_form.L 
+    alf_a = abs_normal_form.Y
+    alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1) 
+    cz = abs_normal_form.cz 
+    cy = abs_normal_form.cy 
+    z = abs_normal_form.z  
+    s = abs_normal_form.num_switches
+    sigma_z = signature_vec(s,z)
+    @show Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z 
+ return x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n     
+end
 
-# initialization
- x_base = [2.0,2.0]
- lb_x = [-5, -5]
- ub_x = [5, 5]
-
-n = length(x_base)
+# bounds
+lb_x = [-5, -5]
+ub_x = [5, 5]
 
 # call the abs-linear form of f
-abs_normal_form = call_adolc(x_base, f) 
-alf_a = abs_normal_form.Y 
-alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1)
-z = abs_normal_form.z  
-s = abs_normal_form.num_switches
-sigma_z = signature_vec(s,z)
+x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n = abs_linearization()
+@show x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n
 
-# gradient formula interms of abs-linearization
+# gradient formula in terms of abs-linearization
 function grad!(storage, x)
     c = vcat(alf_a', alf_b.* sigma_z)
     @. storage = c
