@@ -66,16 +66,8 @@ function aasm(x_base, alpha, f_eval, outer_iter; max_inner_iter=100, model="mode
 #  alpha: step size of FW method
 #  remaining arguments: function pointer
    
-# abs-linearization of f
-  abs_normal_form = call_adolc(x_base, f_eval) 
-  
-  z = abs_normal_form.z
-  Z = abs_normal_form.Z  
-  L = abs_normal_form.L 
-  alf_a = abs_normal_form.Y
-  alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1) 
-  cz = abs_normal_form.cz 
-  cy = abs_normal_form.cy 
+# call the abs-linear form of f
+x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n = abs_linearization()
   
 # to store asm information
   lambdas = []
@@ -112,14 +104,10 @@ function aasm(x_base, alpha, f_eval, outer_iter; max_inner_iter=100, model="mode
     @constraint(o, xz[1:n] >= max.(alpha*(lb_x-x_base),-1.0e30))         
   
     @constraint(o, sigma_z .* xz[n+1:end] .>= 0) 
-    for i in eachindex(abs_normal_form.L)
-     abs_normal_form.L[i]
-    end  
+#    for i in eachindex(abs_normal_form.L)
+#     abs_normal_form.L[i]
+#    end  
     
-    for i in eachindex(abs_normal_form.Z)
-     abs_normal_form.Z[i]
-    end      
-    x_base
     A = [Z L.*sigma_z'-I]
     
     c1 = @constraint(o, A*xz .== -cz)
