@@ -67,8 +67,10 @@ function aasm(x_base, alpha, f_eval, outer_iter; max_inner_iter=100, model="mode
 #  remaining arguments: function pointer
    
 # call the abs-linear form of f
-x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n = abs_linearization()
-  
+abs_normal_form = abs_linear(x_base,f_eval)
+      
+    s = abs_normal_form.num_switches
+             
 # to store asm information
   lambdas = []
   solutions = []
@@ -82,12 +84,17 @@ x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n = abs_linearization()
 # variables: xz = (x,z)  => n+s variables
     @variable(o, xz[1:n+s])
     
+    z = abs_normal_form.z
+    
     set_start_value.(xz[1:n], x_base)
     set_start_value.(xz[n+1:end], z)
     
     sigma_z = signature_vec(s,z)
     
 # define objective
+    alf_a = abs_normal_form.Y
+    alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1) 
+    
     c = vcat(alf_a', alf_b .* sigma_z)       
     @objective(o, Min, dot(c, xz))
   
@@ -107,8 +114,12 @@ x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n = abs_linearization()
 #    for i in eachindex(abs_normal_form.L)
 #     abs_normal_form.L[i]
 #    end  
+    Z = abs_normal_form.Z  
+    L = abs_normal_form.L 
     
     A = [Z L.*sigma_z'-I]
+    
+    cz = abs_normal_form.cz
     
     c1 = @constraint(o, A*xz .== -cz)
     optimize!(o)
@@ -121,6 +132,8 @@ x_base,f,Z,L,alf_a,alf_b,cz,cy,z,s,sigma_z,n = abs_linearization()
     z = myxz[n+1:n+s]
      
 # new abs linearization
+    cy = abs_normal_form.cy 
+    
     fpl_new = cy + alf_a*x_delta + alf_b'*abs.(z) 
     
 # dual-gap for abs-smooth case
