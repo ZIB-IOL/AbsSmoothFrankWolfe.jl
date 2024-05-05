@@ -1,33 +1,36 @@
-include("../src/abs_frank_wolfe.jl")
-include("../src/adolc_call.jl")
+include("../src/AbsSmooth_FW.jl")
+include("../src/abs_linear.jl")
 #include("plots_JSON.jl")
 
-println("")
-println("Chained LQ")
-
-# Chained LQ
-function f(x) 
+# Chained CB3 I vv
+ function f(x)
     n = length(x)
-    l_1 = [-x[i]-x[i+1] for i in 1:n-1]
-    l_2 = [-x[i]-x[i+1]+(x[i]^2+x[i+1]^2-1) for i in 1:n-1]
-    return sum([max(l_1[i], l_2[i]) for i in 1:n-1])
-end
+    l_1 = [x[i]^4+x[i+1]^2 for i in 1:n-1]
+    l_2 = [(2-x[i])^2+(2-x[i+1])^2 for i in 1:n-1]
+    l_3 = [2*exp(-x[i]+x[i+1]) for i in 1:n-1]
+    return sum([max(l_1[i], l_2[i], l_3[i]) for i in 1:n-1])
+ end
+ 
+n = 1000
 
-n = 3
-
-x_base = ones(n) * -0.5
-lb_x = [-10 for in in x_base] 
-ub_x = [10 for in in x_base]
+# evaluation point x_base
+x_base = ones(n) * 2.0
 n = length(x_base)
 
-abs_normal_form = call_adolc(x_base, f) 
+lb_x = [-1000 for in in x_base] 
+ub_x = [1000 for in in x_base]
+
+# call the abs-linear form of f
+abs_normal_form = abs_linear(x_base,f)
+
 alf_a = abs_normal_form.Y 
 alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1)
 z = abs_normal_form.z  
 s = abs_normal_form.num_switches
+
 sigma_z = signature_vec(s,z)
 
-# gradient formula interms of abs-linearization
+# gradient formula in terms of abs-linearization
 function grad!(storage, x)
     c = vcat(alf_a', alf_b.* sigma_z)
     @. storage = c
@@ -42,10 +45,10 @@ MOI.set(o, MOI.Silent(), true)
 lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x)
 
 # define termination criteria
+
 # In case we want to stop the frank_wolfe algorithm prematurely after a certain condition is met,
 # we can return a boolean stop criterion `false`.
 # Here, we will implement a callback that terminates the algorithm if ||x_t+1 - x_t|| < eps.
-
 function make_termination_callback(state)
  return function callback(state,args...)
   return norm(state.d) > 1e-3
@@ -64,5 +67,6 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=10
+    max_iteration=1e5
 )
+
