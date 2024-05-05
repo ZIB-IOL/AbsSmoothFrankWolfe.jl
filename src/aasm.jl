@@ -111,9 +111,7 @@ abs_normal_form = abs_linear(x_base,f_eval)
     @constraint(o, xz[1:n] >= max.(alpha*(lb_x-x_base),-1.0e30))         
   
     @constraint(o, sigma_z .* xz[n+1:end] .>= 0) 
-#    for i in eachindex(abs_normal_form.L)
-#     abs_normal_form.L[i]
-#    end  
+    
     Z = abs_normal_form.Z  
     L = abs_normal_form.L 
     
