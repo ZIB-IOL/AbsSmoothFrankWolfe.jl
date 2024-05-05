@@ -11,6 +11,9 @@ We are interested in optimization problems of the form
 
 $min_{x\in C}$  $f(x)$ 
 
-for convex compact C and an [abs-smooth](https://optimization-online.org/wp-content/uploads/2012/09/3597.pdf) function f.
+for convex compact $C$ and an [abs-smooth](https://optimization-online.org/wp-content/uploads/2012/09/3597.pdf) function $f$.
+
+## Example
+...
 
  
