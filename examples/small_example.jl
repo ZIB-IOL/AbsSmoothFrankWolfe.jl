@@ -63,3 +63,4 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     max_iteration=10
 )
 
+@show x_base
