@@ -1,5 +1,12 @@
-# Adapted Active Signature Method 
-
+"""
+Adapted Active Signature Method - aasm( x, step_size, f, iterations;..)
+ 
+x_base: point at which the piecewise local model is build
+f: abs-smooth function
+lb_x, ub_x: lower and upper bound on x
+alpha: step size of FW method
+remaining arguments: function pointer
+"""
 ###################################################################   
 
 using LinearAlgebra
@@ -60,16 +67,11 @@ function check_normalGrowth(s, b, L, sigma_z, lambda, z; myeps=1.0e-12)
 # adapted active signature method (AASM)
 
 function aasm(x_base, alpha, f_eval, outer_iter; max_inner_iter=100, model="model", mps=false) 
-
-#  x_base: point at which the piecewise local model is build
-#  lb_x, ub_x: lower and upper bound on x
-#  alpha: step size of FW method
-#  remaining arguments: function pointer
    
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f_eval)
       
-    s = abs_normal_form.num_switches
+  s = abs_normal_form.num_switches
              
 # to store asm information
   lambdas = []
