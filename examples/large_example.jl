@@ -17,8 +17,8 @@ n = 1000
 x_base = ones(n) * 2.0
 n = length(x_base)
 
-lb_x = [-1000 for in in x_base] 
-ub_x = [1000 for in in x_base]
+lb_x = [-10 for in in x_base] 
+ub_x = [10 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
