@@ -9,12 +9,6 @@ remaining arguments: function pointer
 """
 ###################################################################   
 
-using LinearAlgebra
-using SCIP, HiGHS, GLPK
-import MathOptInterface
-const MOI = MathOptInterface
-using JuMP
-
 # get signature vector up to accuracy of myeps
 
 function signature_vec(s, z; myeps = 1.0e-12)         
