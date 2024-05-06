@@ -1,4 +1,4 @@
-# AbsSmooth_FW.jl
+# AbsSmoothFW.jl
 Algorithm for nonsmooth optimization
 
 ## Prerequisites
