@@ -1,4 +1,8 @@
-using ADOLC
+"""
+  one can get the abs-linearization of given f by abs_linear(x,f)
+x: base point
+f: abs-smooth func
+"""
 
 function abs_linear(x,f)
 
