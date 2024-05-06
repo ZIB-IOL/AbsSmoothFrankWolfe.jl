@@ -10,7 +10,11 @@ using ADOLC
 import MathOptInterface
 const MOI = MathOptInterface
 
+export as_frank_wolfe
+
+include("as_frank_wolfe,jl")
 include("aasm.jl")
 include("abs_linear.jl")
+include("Abs_LMO.jl")
 
 end
