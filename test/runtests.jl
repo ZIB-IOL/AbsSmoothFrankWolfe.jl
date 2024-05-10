@@ -1,3 +1,4 @@
+include("../src/AbsSmoothFW.jl")
 using Test 
 
 @testset "CB 3" begin 
