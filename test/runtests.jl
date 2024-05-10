@@ -60,7 +60,7 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     gradient = ones(n+s),
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
-    verbose=true,
+    verbose=false,
     max_iteration=1e5
 )
     
