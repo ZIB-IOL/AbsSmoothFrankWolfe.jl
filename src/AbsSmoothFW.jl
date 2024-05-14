@@ -13,6 +13,6 @@ const MOI = MathOptInterface
 include("as_frank_wolfe.jl")
 include("aasm.jl")
 include("abs_linear.jl")
-include("Abs_LMO.jl")
+include("abs_lmo.jl")
 
 end
