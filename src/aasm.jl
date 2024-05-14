@@ -60,7 +60,7 @@ function check_normalGrowth(s, b, L, sigma_z, lambda, z; myeps=1.0e-12)
 
 # adapted active signature method (AASM)
 
-function aasm(x_base, alpha, f_eval, outer_iter; max_inner_iter=100, model="model", mps=false) 
+function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=100, model="model", mps=false) 
    
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f_eval)
