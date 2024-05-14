@@ -117,6 +117,23 @@ abs_normal_form = abs_linear(x_base,f_eval)
     
     c1 = @constraint(o, A*xz .== -cz)
     optimize!(o)
+    # Retrieve the solver information to get the number of simplex iterations
+    # Get the HiGHS backend
+#    optimizer = backend(o)  
+    # Retrieve simplex iterations
+#    info = MOI.get(optimizer, MOI.SimplexIterations())  
+      
+#     push!(simplex_count, info)
+     #@show simplex_count
+     
+#     total_simplex_count = 0
+     
+#    for value in simplex_count
+#     total_simplex_count += value
+#    end
+     
+#     @show total_simplex_count
+ 
    
     myxz = [value(var) for var in all_variables(o)]    
     myxz = round.(myxz, digits=5)
