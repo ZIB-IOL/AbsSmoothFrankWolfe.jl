@@ -1,5 +1,5 @@
 # AbsSmoothFW.jl
-[![Build Status](https://github.com/shtadinada/AbsSmoothFW.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/shtadinada/AbsSmoothFW.jl/actions/workflows/CI.yml?query=branch%3Amain)
+more features to come soon..
 
 ## Overview
 We are interested in optimization problems of the form $\min\limits_{x\in C}$  $f(x)$ , for convex compact $C$ and an [abs-smooth](https://optimization-online.org/wp-content/uploads/2012/09/3597.pdf) function $f$.
