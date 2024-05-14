@@ -2,6 +2,7 @@ include("../src/as_frank_wolfe.jl")
 include("../src/aasm.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
+
 # Define the Mifflin 2 function
 function f(x)
    return -x[1] + 2*(x[1]^2 + x[2]^2 - 1) + 1.75*abs(x[1]^2 + x[2]^2 - 1)
