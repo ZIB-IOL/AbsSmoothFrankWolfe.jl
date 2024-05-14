@@ -30,7 +30,7 @@ function FrankWolfe.compute_extreme_point(lmo::AbsSmoothLMO, direction; kwargs..
     inner_iteration = lmo.iteration_counter
     t = lmo.fw_iteration_counter
     alpha = 2 /(t+2)    
-    x_delta, fabs, _, _, iter = aasm(x_base, alpha, f, inner_iteration)
+    x_delta, fabs, _, _, iter = aasm(x_base, alpha, f, n, ub_x, lb_x, inner_iteration)
     
     # update inner_iteration
      lmo.fw_iteration_counter += 1
