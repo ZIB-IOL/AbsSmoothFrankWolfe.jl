@@ -4,7 +4,7 @@ include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 #include("plots_JSON.jl")
 
-# Chained CB3 I vv
+# Chained CB3 I 
  function f(x)
     n = length(x)
     l_1 = [x[i]^4+x[i+1]^2 for i in 1:n-1]
