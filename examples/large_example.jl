@@ -1,5 +1,7 @@
-include("../src/AbsSmooth_FW.jl")
+include("../src/as_frank_wolfe.jl")
+include("../src/aasm.jl")
 include("../src/abs_linear.jl")
+include("../src/abs_lmo.jl")
 #include("plots_JSON.jl")
 
 # Chained CB3 I vv
@@ -67,6 +69,6 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=1e5
+    max_iteration=1e7
 )
 
