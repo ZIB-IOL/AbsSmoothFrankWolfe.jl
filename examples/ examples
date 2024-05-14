@@ -173,3 +173,68 @@
  
  x0 = [-1.2,1.0]
  # -10 <= x_i <= 10
+
+### Large Problems
+# choose any bounds that contain the starting point - x_base
+ 		
+# Chained crescent II 
+ function f(x)
+    n = length(x)
+    l_1 = [x[i]^2 + (x[i+1] - 1)^2 + x[i+1] - 1 for i in 1:n-1]
+    l_2 =  [-x[i]^2 - (x[i+1] - 1)^2 + x[i+1] + 1 for i in 1:n-1]
+    return sum([max(l_1[i], l_2[i]) for i in 1:n-1])
+ end
+ 
+ x_base = [i%2==0 ? -1.5 : 2.0 for i in 1:n]
+ 
+# Chained crescent I 
+ function f(x)
+     n = length(x)
+     l_1 = [x[i]^2+(x[i+1]-1)^2+x[i+1]-1 for i in 1:n-1]
+     l_2 = [-x[i]^2-(x[i+1]-1)^2+x[i+1]+1 for i in 1:n-1]
+     return max(sum(l_1[i] for i in 1:n-1), sum(l_2[i] for i in 1:n-1))   
+ end
+ 
+ x_base = [i%2==0 ? -1.5 : 2.0 for i in 1:n]
+ 
+# Chained Mifflin 2  
+ function f(x)
+     n = length(x)
+     l_1 = [-x[i]+2*(x[i]^2+x[i+1]^2-1)+1.75*abs(x[i]^2+x[i+1]^2-1) for i in 1:n-1]
+     return sum(l_1[i] for i in 1:n-1)
+ end
+ 
+ x_base = ones(n)
+ 
+ 
+# Chained CB3 II 
+ function f(x)
+    n = length(x)
+    l_1 = [x[i]^4+x[i+1]^2 for i in 1:n-1]
+    l_2 = [(2-x[i])^2+(2-x[i+1])^2 for i in 1:n-1]
+    l_3 = [2*exp(-x[i]+x[i+1]) for i in 1:n-1]
+    return max(sum(l_1[i] for i in 1:n-1), sum(l_2[i] for i in 1:n-1), sum(l_3[i] for i in 1:n-1))
+ end
+ 
+ x_base = ones(n)*2.0 
+ 
+# Chained LQ 
+ function f(x) 
+    n = length(x)
+    l_1 = [-x[i]-x[i+1] for i in 1:n-1]
+    l_2 = [-x[i]-x[i+1]+(x[i]^2+x[i+1]^2-1) for i in 1:n-1]
+    return sum([max(l_1[i], l_2[i]) for i in 1:n-1])
+ end
+ 
+ x_base = ones(n) * -0.5
+ 
+# Chained CB3 I 
+ function f(x)
+    n = length(x)
+    l_1 = [x[i]^4+x[i+1]^2 for i in 1:n-1]
+    l_2 = [(2-x[i])^2+(2-x[i+1])^2 for i in 1:n-1]
+    l_3 = [2*exp(-x[i]+x[i+1]) for i in 1:n-1]
+    return sum([max(l_1[i], l_2[i], l_3[i]) for i in 1:n-1])
+ end
+ 
+ x_base = ones(n) * 2.0
