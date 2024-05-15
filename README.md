@@ -4,11 +4,12 @@ Algorithm for nonsmooth optimization
 Zenodo!!
 ## Pre-requisites
 You need to export the ADOL-C libraries and the wrapper first by :
-'''julia
+```julia
  ] add https://github.com/TimSiebert1/ADOLC_jll.jl.git#main
-'''julia
+```
+```julia
  ] add https://github.com/TimSiebert1/ADOLC.jl.git#master
-
+```
 ## Overview
 We are interested in optimization problems of the form $\min\limits_{x\in C}$  $f(x)$ , for convex compact $C$ and an [abs-smooth](https://optimization-online.org/wp-content/uploads/2012/09/3597.pdf) function $f$.
 
