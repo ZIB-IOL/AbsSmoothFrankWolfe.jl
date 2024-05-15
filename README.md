@@ -1,7 +1,6 @@
 # AbsSmoothFW.jl
 Algorithm for nonsmooth optimization
 
-Zenodo!!
 ## Pre-requisites
 You need to export the ADOL-C libraries and the wrapper first by :
 ```julia
