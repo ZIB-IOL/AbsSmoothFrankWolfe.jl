@@ -1,5 +1,5 @@
 """
-    frank_wolfe(f, grad!, lmo, x0; ...)
+    as_frank_wolfe(f, grad!, lmo, x0; ...)
 
 Simplest form of the Frank-Wolfe algorithm.
 Returns a tuple `(x, v, primal, dual_gap, traj_data)` with:
@@ -31,7 +31,7 @@ function as_frank_wolfe(
 )
 
     # header and format string for output of the algorithm
-    headers = ["Type", "Iteration", "Primal", "||delta x||", "Primal gap", "Time", "It/sec"]
+    headers = ["Type", "Iteration", "Primal", "||delta x||", "Dual gap", "Time", "It/sec"]
     format_string = "%6s %13s %14e %14e %14e %14e %14e\n"
     function format_state(state)
         rep = (
@@ -41,7 +41,8 @@ function as_frank_wolfe(
             #Float64(state.primal - state.dual_gap),
             #Float64(state.dual_gap),
             Float64(norm(v-x0)),
-            Float64(norm(f(v)-f(x0))),
+            #Float64(norm(f(v)-f(x0))),
+            Float64(norm(lmo.dualgap_asfw)),
             state.time,
             state.t / state.time,
         )
