@@ -117,24 +117,7 @@ abs_normal_form = abs_linear(x_base,f_eval)
     
     c1 = @constraint(o, A*xz .== -cz)
     optimize!(o)
-    # Retrieve the solver information to get the number of simplex iterations
-    # Get the HiGHS backend
-#    optimizer = backend(o)  
-    # Retrieve simplex iterations
-#    info = MOI.get(optimizer, MOI.SimplexIterations())  
-      
-#     push!(simplex_count, info)
-     #@show simplex_count
-     
-#     total_simplex_count = 0
-     
-#    for value in simplex_count
-#     total_simplex_count += value
-#    end
-     
-#     @show total_simplex_count
- 
-   
+    
     myxz = [value(var) for var in all_variables(o)]    
     myxz = round.(myxz, digits=5)
     push!(solutions, myxz)
@@ -148,7 +131,9 @@ abs_normal_form = abs_linear(x_base,f_eval)
     fpl_new = cy + alf_a*x_delta + alf_b'*abs.(z) 
     
 # dual-gap for abs-smooth case
-   fabs = alf_a*x_delta + alf_b'*abs.(z)
+    fabs = alf_a*x_delta + alf_b'*abs.(z)
+    gap = fabs/alpha 
+    #@show gap
  
     mylambda = round.(dual.(c1), digits=3)
     push!(lambdas, mylambda)
@@ -161,10 +146,10 @@ abs_normal_form = abs_linear(x_base,f_eval)
       sigma_z[index_mu]=-mylambda[index_mu]/abs(mylambda[index_mu]);       
     else
  # local minimizer reached      
-     return x_delta, fabs, solutions, lambdas, iter
+     return x_delta, gap, solutions, lambdas, iter
     end
     iter = iter+1
   end
 
-  return x_delta, fabs, solutions, lambdas, iter 
+  return x_delta, gap, solutions, lambdas, iter 
 end
