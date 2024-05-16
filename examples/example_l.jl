@@ -51,9 +51,11 @@ lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x)
 # In case we want to stop the frank_wolfe algorithm prematurely after a certain condition is met,
 # we can return a boolean stop criterion `false`.
 # Here, we will implement a callback that terminates the algorithm if ||x_t+1 - x_t|| < eps.
+# or primal gap < eps. 
 function make_termination_callback(state)
  return function callback(state,args...)
   return norm(state.d) > 1e-3
+  #return norm(state.f(state.x)-state.f(state.d + state.x)) > 1e-12
  end
 end
 
