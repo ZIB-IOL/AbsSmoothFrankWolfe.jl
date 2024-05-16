@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/793075266.svg)](https://zenodo.org/doi/10.5281/zenodo.11198550)
 # AbsSmoothFW.jl
 more features to come soon..
 
