@@ -63,16 +63,16 @@ function check_normalGrowth(s, b, L, sigma_z, lambda, z; myeps=1.0e-12)
 function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=100, model="model", mps=false) 
    
 # call the abs-linear form of f
-abs_normal_form = abs_linear(x_base,f_eval)
+   abs_normal_form = abs_linear(x_base,f_eval)
       
-  s = abs_normal_form.num_switches
+   s = abs_normal_form.num_switches
              
 # to store asm information
-  lambdas = []
-  solutions = []
+   lambdas = []
+   solutions = []
   
-  iter = 1
-  while iter <= max_inner_iter  
+   iter = 1
+   while iter <= max_inner_iter  
     
     o = Model(HiGHS.Optimizer)
     MOI.set(o, MOI.Silent(), true)
@@ -118,23 +118,41 @@ abs_normal_form = abs_linear(x_base,f_eval)
     c1 = @constraint(o, A*xz .== -cz)
     optimize!(o)
     
+    # Retrieve the solver information to get the number of simplex iterations
+    # Get the HiGHS backend
+#    optimizer = backend(o)  
+    # Retrieve simplex iterations
+#    info = MOI.get(optimizer, MOI.SimplexIterations())  
+      
+#     push!(simplex_count, info)
+     #@show simplex_count
+     
+#     total_simplex_count = 0
+     
+#    for value in simplex_count
+#     total_simplex_count += value
+#    end
+     
+#     @show total_simplex_count
+    
     myxz = [value(var) for var in all_variables(o)]    
     myxz = round.(myxz, digits=5)
     push!(solutions, myxz)
-  
+     
     x_delta = myxz[1:n]
     z = myxz[n+1:n+s]
-     
+   
 # new abs linearization
     cy = abs_normal_form.cy 
     
     fpl_new = cy + alf_a*x_delta + alf_b'*abs.(z) 
-    
+    #@show fpl_new
 # dual-gap for abs-smooth case
+    #@show f(x_base)
     fabs = alf_a*x_delta + alf_b'*abs.(z)
-    gap = fabs/alpha 
+    gap = (fpl_new .- f(x_base))/alpha 
     #@show gap
- 
+   
     mylambda = round.(dual.(c1), digits=3)
     push!(lambdas, mylambda)
     
