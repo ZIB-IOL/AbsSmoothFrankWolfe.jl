@@ -59,6 +59,7 @@ function check_normalGrowth(s, b, L, sigma_z, lambda, z; myeps=1.0e-12)
 ###############################################################################
 
 # adapted active signature method (AASM)
+simplex_count = []
 
 function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=100, model="model", mps=false) 
    
@@ -120,20 +121,20 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
     
     # Retrieve the solver information to get the number of simplex iterations
     # Get the HiGHS backend
-#    optimizer = backend(o)  
+    optimizer = backend(o)  
     # Retrieve simplex iterations
-#    info = MOI.get(optimizer, MOI.SimplexIterations())  
+    info = MOI.get(optimizer, MOI.SimplexIterations())  
       
-#     push!(simplex_count, info)
+     push!(simplex_count, info)
      #@show simplex_count
      
-#     total_simplex_count = 0
+     total_simplex_count = 0
      
-#    for value in simplex_count
-#     total_simplex_count += value
-#    end
+    for value in simplex_count
+     total_simplex_count += value
+    end
      
-#     @show total_simplex_count
+     @show total_simplex_count
     
     myxz = [value(var) for var in all_variables(o)]    
     myxz = round.(myxz, digits=5)
@@ -146,12 +147,10 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
     cy = abs_normal_form.cy 
     
     fpl_new = cy + alf_a*x_delta + alf_b'*abs.(z) 
-    #@show fpl_new
+    
 # dual-gap for abs-smooth case
-    #@show f(x_base)
-    fabs = alf_a*x_delta + alf_b'*abs.(z)
-    gap = (fpl_new .- f(x_base))/alpha 
-    #@show gap
+    gap = (f_eval(x_base) .- fpl_new)/alpha
+    #@show gap, 1/alpha
    
     mylambda = round.(dual.(c1), digits=3)
     push!(lambdas, mylambda)
