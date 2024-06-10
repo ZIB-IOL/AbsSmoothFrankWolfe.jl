@@ -13,7 +13,6 @@ include("../src/as_frank_wolfe.jl")
 include("../src/aasm.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
-#include("plots_JSON.jl")
 
 # Chained CB3 I 
  function f(x)
