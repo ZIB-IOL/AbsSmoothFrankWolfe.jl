@@ -14,17 +14,17 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-    # CB3
+# SPIRAL
  function f(x)
- 	return max(x[1]^4+x[2]^2, (2-x[1])^2+(2-x[2])^2, 2*exp(x[2]-x[1]))
+ 	return max((x[1]-sqrt(x[1]^2+x[2]^2)*cos(sqrt(x[1]^2+x[2]^2)))^2+0.005*(x[1]^2+x[2]^2),(x[2]-sqrt(x[1]^2+x[2]^2)*sin(sqrt(x[1]^2+x[2]^2)))^2+0.005*(x[1]^2+x[2]^2))
  end
  
 # evaluation point x_base
-x_base = [2.0,2.0]
+x_base = [1.4,-4.8]
 n = length(x_base)
  
-lb_x = [-5 for in in x_base] 
-ub_x = [5 for in in x_base]
+lb_x = [-7 for in in x_base] 
+ub_x = [7 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
@@ -60,12 +60,11 @@ lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 # Here, we will implement a callback that terminates the algorithm if ASFW Dual gap < eps.
 function make_termination_callback(state)
  return function callback(state,args...)
-  return norm(state.lmo.dualgap_asfw) > 1e-3
+  return state.lmo.dualgap_asfw[1] > 1e-2
  end
 end
 
 callback = make_termination_callback(FrankWolfe.CallbackState)
-
 
 # call abs-smooth-frank-wolfe
 x, v, primal, dual_gap, traj_data = as_frank_wolfe(
