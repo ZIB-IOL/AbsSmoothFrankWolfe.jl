@@ -64,7 +64,7 @@ lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 # Here, we will implement a callback that terminates the algorithm if ASFW Dual gap < eps.
 function make_termination_callback(state)
  return function callback(state,args...)
-  return norm(state.lmo.dualgap_asfw) > 1e-2
+  return state.lmo.dualgap_asfw[1] > 1e-2
  end
 end
 
