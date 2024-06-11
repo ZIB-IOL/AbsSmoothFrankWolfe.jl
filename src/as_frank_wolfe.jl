@@ -42,7 +42,7 @@ function as_frank_wolfe(
             #Float64(state.dual_gap),
             Float64(norm(v-x0)),
             #Float64(norm(f(v)-f(x0))),
-            Float64(norm(lmo.dualgap_asfw)),
+            Float64(lmo.dualgap_asfw[1]),
             state.time,
             state.t / state.time,
         )
