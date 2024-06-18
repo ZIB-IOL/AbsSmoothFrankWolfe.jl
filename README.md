@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/793075266.svg)](https://zenodo.org/doi/10.5281/zenodo.11198550)
 # AbsSmoothFW.jl
-more features to come soon..
+An algorithm for non-smooth optimization.
 
 ## Pre-requisites
 You need to export the ADOL-C libraries and the wrapper first by :
