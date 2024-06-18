@@ -38,8 +38,6 @@ function as_frank_wolfe(
             FrankWolfe.st[Symbol(state.tt)],
             string(state.t),
             Float64(state.primal),
-            #Float64(state.primal - state.dual_gap),
-            #Float64(state.dual_gap),
             Float64(norm(v-x0)),
             Float64(norm(f(v)-f(x0))),
             state.time,
