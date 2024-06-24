@@ -8,7 +8,7 @@ An algorithm for non-smooth optimization.
 
 ## Overview
 We are interested in optimization problems of the form $\min\limits_{x\in C}$  $f(x)$ , for convex compact $C$ and an [abs-smooth](https://optimization-online.org/wp-content/uploads/2012/09/3597.pdf) function $f$.
-We do so by using [ADOLC.jl](https://github.com/TimSiebert1/ADOLC.jl/tree/master) for the AD tools and using the [FrankWolfe.jl](https://github.com/ZIB-IOL/FrankWolfe.jl) for conditional gradient methods.
+We aim to solve such problems by using [ADOLC.jl](https://github.com/TimSiebert1/ADOLC.jl/tree/master) for the AD tools and using the [FrankWolfe.jl](https://github.com/ZIB-IOL/FrankWolfe.jl) for conditional gradient methods.
 
 ## Example
 Look into examples folder to find 2 examples for small(n=2) and large(n=1000) test problems.
