@@ -79,4 +79,3 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
 )
 
 @show x_base
-
