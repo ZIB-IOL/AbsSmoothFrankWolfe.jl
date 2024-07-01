@@ -5,7 +5,6 @@ using JuMP
 using HiGHS
 using ADOLC
 
-
 import MathOptInterface
 const MOI = MathOptInterface
 
@@ -14,23 +13,23 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-# SPIRAL
+# LQ
  function f(x)
- 	return max((x[1]-sqrt(x[1]^2+x[2]^2)*cos(sqrt(x[1]^2+x[2]^2)))^2+0.005*(x[1]^2+x[2]^2),(x[2]-sqrt(x[1]^2+x[2]^2)*sin(sqrt(x[1]^2+x[2]^2)))^2+0.005*(x[1]^2+x[2]^2))
+ 	return max(-x[1]-x[2], -x[1]-x[2]+x[1]^2+x[2]^2-1)
  end
  
 # evaluation point x_base
-x_base = [1.4,-4.8]
+x_base = [-0.5,-0.5]
 n = length(x_base)
  
-lb_x = [-7 for in in x_base] 
-ub_x = [7 for in in x_base]
+lb_x = [-5 for in in x_base] 
+ub_x = [5 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
 
-alf_a = abs_normal_form.Y 
-alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1)
+alf_a = abs_normal_form.Y
+alf_b = abs_normal_form.J 
 z = abs_normal_form.z  
 s = abs_normal_form.num_switches
 
@@ -38,7 +37,7 @@ sigma_z = signature_vec(s,z)
 
 # gradient formula in terms of abs-linearization
 function grad!(storage, x)
-    c = vcat(alf_a', alf_b.* sigma_z)
+    c = vcat(alf_a', alf_b'.* sigma_z)
     @. storage = c
 end
 
