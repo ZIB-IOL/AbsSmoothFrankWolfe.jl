@@ -35,7 +35,6 @@ function FrankWolfe.compute_extreme_point(lmo::AbsSmoothLMO, direction; kwargs..
     
     # update abs-smooth dual gap
     lmo.dualgap_asfw = gap
-    #@show lmo.dualgap_asfw
     
     # update inner_iteration
      lmo.fw_iteration_counter += 1
