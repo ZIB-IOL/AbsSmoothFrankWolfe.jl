@@ -5,7 +5,6 @@ using JuMP
 using HiGHS
 using ADOLC
 
-
 import MathOptInterface
 const MOI = MathOptInterface
 
