@@ -5,6 +5,7 @@ using JuMP
 using HiGHS
 using ADOLC
 
+
 import MathOptInterface
 const MOI = MathOptInterface
 
@@ -13,7 +14,10 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-## CB3
+using Test 
+
+@testset "CB 3" begin 
+    # CB3
  function f(x)
  	return max(x[1]^4+x[2]^2, (2-x[1])^2+(2-x[2])^2, 2*exp(x[2]-x[1]))
  end
@@ -22,14 +26,14 @@ include("../src/abs_lmo.jl")
 x_base = [2.0,2.0]
 n = length(x_base)
  
-lb_x = [-5 for in in x_base] 
-ub_x = [5 for in in x_base]
+lb_x = [-10 for in in x_base] 
+ub_x = [10 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
 
-alf_a = abs_normal_form.Y
-alf_b = abs_normal_form.J 
+alf_a = abs_normal_form.Y 
+alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1)
 z = abs_normal_form.z  
 s = abs_normal_form.num_switches
 
@@ -37,7 +41,7 @@ sigma_z = signature_vec(s,z)
 
 # gradient formula in terms of abs-linearization
 function grad!(storage, x)
-    c = vcat(alf_a', alf_b'.* sigma_z)
+    c = vcat(alf_a', alf_b.* sigma_z)
     @. storage = c
 end
 
@@ -46,11 +50,8 @@ o = Model(HiGHS.Optimizer)
 MOI.set(o, MOI.Silent(), true)
 @variable(o, lb_x[i] <= x[i=1:n] <= ub_x[i])
 
-# initialise dual gap 
-dualgap_asfw = Inf
-
 # abs-smooth lmo
-lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
+lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x)
 
 # define termination criteria
 
@@ -74,9 +75,10 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     gradient = ones(n+s),
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
-    verbose=true,
+    verbose=false,
     max_iteration=1e5
 )
-
-@show x_base
-
+    
+    @test round.(x) == [1.0, 1.0]
+    @test f(round.(x)) == 2
+end 
