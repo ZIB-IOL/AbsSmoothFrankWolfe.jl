@@ -50,8 +50,11 @@ o = Model(HiGHS.Optimizer)
 MOI.set(o, MOI.Silent(), true)
 @variable(o, lb_x[i] <= x[i=1:n] <= ub_x[i])
 
+# initialise dual gap 
+dualgap_asfw = Inf
+
 # abs-smooth lmo
-lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x)
+lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 
 # define termination criteria
 
