@@ -131,6 +131,14 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
         
 # dual-gap for abs-smooth case
     gap = (f_eval(x_base) .- fpl_new)/alpha
+  
+   if gap < [0.0]
+     gap = [1.0e-12]
+     
+   else
+     gap = gap
+   
+   end
 
     mylambda = round.(dual.(c1), digits=3)
     push!(lambdas, mylambda)
