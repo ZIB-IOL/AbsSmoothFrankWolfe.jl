@@ -48,7 +48,7 @@ function check_normalGrowth(s, b, L, sigma_z, lambda, z; myeps=1.0e-12)
       if mu < min_mu_val
         index = i
         min_mu_val = mu
-          
+         @show sigma_z  
       end  
     end
   end
@@ -59,8 +59,6 @@ function check_normalGrowth(s, b, L, sigma_z, lambda, z; myeps=1.0e-12)
 ###############################################################################
 
 # adapted active signature method (AASM)
-simplex_count = []
-
 function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=100, model="model", mps=false) 
    
 # call the abs-linear form of f
@@ -71,7 +69,7 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
 # to store asm information
    lambdas = []
    solutions = []
-  
+   
    iter = 1
    while iter <= max_inner_iter  
     
@@ -90,9 +88,9 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
     
 # define objective
     alf_a = abs_normal_form.Y
-    alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1) 
+    alf_b = abs_normal_form.J 
     
-    c = vcat(alf_a', alf_b .* sigma_z)       
+    c = vcat(alf_a', alf_b' .* sigma_z)       
     @objective(o, Min, dot(c, xz))
   
 ################## define bound constraints ############################## 
@@ -119,39 +117,29 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
     c1 = @constraint(o, A*xz .== -cz)
     optimize!(o)
     
-    # Retrieve the solver information to get the number of simplex iterations
-    # Get the HiGHS backend
-    optimizer = backend(o)  
-    # Retrieve simplex iterations
-    info = MOI.get(optimizer, MOI.SimplexIterations())  
-      
-     push!(simplex_count, info)
-     #@show simplex_count
-     
-     total_simplex_count = 0
-     
-    for value in simplex_count
-     total_simplex_count += value
-    end
-     
-     @show total_simplex_count
-    
     myxz = [value(var) for var in all_variables(o)]    
     myxz = round.(myxz, digits=5)
     push!(solutions, myxz)
      
     x_delta = myxz[1:n]
     z = myxz[n+1:n+s]
-   
+  
 # new abs linearization
     cy = abs_normal_form.cy 
     
-    fpl_new = cy + alf_a*x_delta + alf_b'*abs.(z) 
-    
+    fpl_new = cy + alf_a*x_delta + alf_b*abs.(z) 
+        
 # dual-gap for abs-smooth case
     gap = (f_eval(x_base) .- fpl_new)/alpha
-    #@show gap, 1/alpha
+  
+   if gap < [0.0]
+     gap = [1.0e-12]
+     
+   else
+     gap = gap
    
+   end
+
     mylambda = round.(dual.(c1), digits=3)
     push!(lambdas, mylambda)
     
@@ -159,12 +147,14 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
     index_mu = check_normalGrowth(s, alf_b, L, sigma_z, mylambda, z) 
     
     if index_mu > -1
- # current point not optimal, change polyhedron 
-      sigma_z[index_mu]=-mylambda[index_mu]/abs(mylambda[index_mu]);       
+# current point not optimal, change polyhedron 
+      sigma_z[index_mu]=-mylambda[index_mu]/abs(mylambda[index_mu]);      
+       
     else
- # local minimizer reached      
-     return x_delta, gap, solutions, lambdas, iter
+# local minimizer reached     
+      return x_delta, gap, solutions, lambdas, iter
     end
+    
     iter = iter+1
   end
 

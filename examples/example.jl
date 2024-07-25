@@ -36,7 +36,7 @@ ub_x = [10 for in in x_base]
 abs_normal_form = abs_linear(x_base,f)
 
 alf_a = abs_normal_form.Y 
-alf_b = reshape(abs_normal_form.J, size(abs_normal_form.J)[2], 1)
+alf_b = abs_normal_form.J
 z = abs_normal_form.z  
 s = abs_normal_form.num_switches
 
@@ -44,7 +44,7 @@ sigma_z = signature_vec(s,z)
 
 # gradient formula in terms of abs-linearization
 function grad!(storage, x)
-    c = vcat(alf_a', alf_b.* sigma_z)
+    c = vcat(alf_a', alf_b'.* sigma_z)
     @. storage = c
 end
 
