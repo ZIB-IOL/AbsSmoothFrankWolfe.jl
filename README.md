@@ -1,5 +1,7 @@
 [![DOI](https://zenodo.org/badge/793075266.svg)](https://zenodo.org/doi/10.5281/zenodo.11198550)
 
+[![Build Status](https://github.com/shtadinada/AbsSmoothFW.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/shtadinada/AbsSmoothFW.jl/actions/workflows/CI.yml?query=branch%3Amain)
+
 # AbsSmoothFW.jl
 An algorithm for non-smooth optimization.
 
