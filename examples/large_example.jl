@@ -5,6 +5,7 @@ using JuMP
 using HiGHS
 using ADOLC
 
+
 import MathOptInterface
 const MOI = MathOptInterface
 
@@ -13,21 +14,22 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-# Chained Mifflin 2  
+# Chained crescent I vv
  function f(x)
      n = length(x)
-     l_1 = [-x[i]+2*(x[i]^2+x[i+1]^2-1)+1.75*abs(x[i]^2+x[i+1]^2-1) for i in 1:n-1]
-     return sum(l_1[i] for i in 1:n-1)
+     l_1 = [x[i]^2+(x[i+1]-1)^2+x[i+1]-1 for i in 1:n-1]
+     l_2 = [-x[i]^2-(x[i+1]-1)^2+x[i+1]+1 for i in 1:n-1]
+     return max(sum(l_1[i] for i in 1:n-1), sum(l_2[i] for i in 1:n-1))   
  end
  
-n = 1000
+n = 40000
 
 # evaluation point x_base
-x_base = ones(n)
+x_base = [i%2==0 ? -1.5 : 2.0 for i in 1:n]
 n = length(x_base)
 
-lb_x = [-10 for in in x_base] 
-ub_x = [10 for in in x_base]
+lb_x = [-1.9 for in in x_base] 
+ub_x = [2.4 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
@@ -79,6 +81,7 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=1e7
+    max_iteration=2
 )
+
 

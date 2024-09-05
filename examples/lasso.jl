@@ -13,20 +13,31 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-# LQ
+
+n = 9 # lenght(x)
+p = 5 # lenght(y)
+
+rho = 0.5
+
+A = rand(p,n)
+y = rand(p)
+
+# LASSO
  function f(x)
- 	return max(-x[1]-x[2], -x[1]-x[2]+x[1]^2+x[2]^2-1)
+	
+ 	return 0.5*(norm(A*x - y))^2 + rho*norm(x)
+
  end
  
 # evaluation point x_base
-x_base = [-0.5,-0.5]
-n = length(x_base)
+x_base = ones(n)*1.0
  
 lb_x = [-5 for in in x_base] 
 ub_x = [5 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
+#@show abs_normal_form
 
 alf_a = abs_normal_form.Y
 alf_b = abs_normal_form.J 
@@ -77,5 +88,4 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     verbose=true,
     max_iteration=1e5
 )
-
-@show x_base
+@show A, y
