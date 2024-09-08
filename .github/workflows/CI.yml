@@ -1,12 +1,7 @@
-name: Linux-MacOS-Win
+name: CI
 on:
-  pull_request:
-    branches:
-      - master
-  push:
-    branches:
-      - master
-    tags: '*'
+  - push
+  - pull_request
 
 jobs:
   test:
