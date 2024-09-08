@@ -17,15 +17,15 @@ function as_frank_wolfe(
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
     momentum=nothing,
     epsilon=1.0e-7,
-    max_iteration=1.0e6,
-    print_iter=1.0,
+    max_iteration=1.0e7,
+    print_iter=1000.0,
     trajectory=false,
     verbose=false,
     memory_mode::FrankWolfe.MemoryEmphasis=FrankWolfe.InplaceEmphasis(),
     gradient=nothing,
     callback=nothing,
     traj_data=[],
-    timeout=3600,
+    timeout=Inf,
     linesearch_workspace=nothing,
     dual_gap_compute_frequency=1.0,
 )
@@ -68,7 +68,7 @@ function as_frank_wolfe(
     end
 
     if verbose
-        println("\nVanilla Frank-Wolfe Algorithm.")
+        println("\nVanilla Abs-Smooth Frank-Wolfe Algorithm.")
         NumType = eltype(x0)
         println(
             "MEMORY_MODE: $memory_mode STEPSIZE: $line_search EPSILON: $epsilon MAXITERATION: $max_iteration TYPE: $NumType",

@@ -13,14 +13,14 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-# DEM 
+# CB3
  function f(x)
- 	return max(5*x[1]+x[2], -5*x[1]+x[2], x[1]^2+x[2]^2+4*x[2])
+ 	return max(x[1]^4+x[2]^2, (2-x[1])^2+(2-x[2])^2, 2*exp(x[2]-x[1]))
  end
  
  
 # evaluation point x_base
-x_base = [1.0,1.0]
+x_base = [2.0,2.0]
 n = length(x_base)
  
 lb_x = [-5 for in in x_base] 
@@ -28,7 +28,6 @@ ub_x = [5 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
-#@show abs_normal_form
 
 alf_a = abs_normal_form.Y
 alf_b = abs_normal_form.J 
@@ -36,7 +35,6 @@ z = abs_normal_form.z
 s = abs_normal_form.num_switches
 
 sigma_z = signature_vec(s,z)
-
 
 # gradient formula in terms of abs-linearization
 function grad!(storage, x)

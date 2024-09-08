@@ -59,6 +59,8 @@ function check_normalGrowth(s, b, L, sigma_z, lambda, z; myeps=1.0e-12)
 ###############################################################################
 
 # adapted active signature method (AASM)
+simplex_count = []
+
 function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=100, model="model", mps=false) 
    
 # call the abs-linear form of f
@@ -72,7 +74,7 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
    
    iter = 1
    while iter <= max_inner_iter  
-    
+  
     o = Model(HiGHS.Optimizer)
     MOI.set(o, MOI.Silent(), true)
 
@@ -123,26 +125,28 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
      
     x_delta = myxz[1:n]
     z = myxz[n+1:n+s]
-  
 # new abs linearization
     cy = abs_normal_form.cy 
     
-    fpl_new = cy + alf_a*x_delta + alf_b*abs.(z) 
-        
-# dual-gap for abs-smooth case
-    gap = (f_eval(x_base) .- fpl_new)/alpha
-  
-   if gap < [0.0]
-     gap = [1.0e-12]
-     
-   else
-     gap = gap
-   
-   end
+    fpl_new = cy + alf_a*x_delta + alf_b*abs.(z)   
+
+    if (fpl_new[1] > f_eval(x_base)[1] + 1.0e-12) || abs(fpl_new[1] - f_eval(x_base)[1]) < 1.0e-12
+    
+         iter+=1	
+
+         gap = [0.0]  #fpl_new = f_eval(x_base)
+    
+       return x_delta, gap, solutions, lambdas, iter
+		
+    end
 
     mylambda = round.(dual.(c1), digits=3)
     push!(lambdas, mylambda)
     
+# dual-gap for abs-smooth case
+
+    gap = (f_eval(x_base) .- fpl_new)/alpha    
+
 # local optimality criterion
     index_mu = check_normalGrowth(s, alf_b, L, sigma_z, mylambda, z) 
     
@@ -155,8 +159,9 @@ function aasm(x_base, alpha, f_eval, n, ub_x, lb_x, outer_iter; max_inner_iter=1
       return x_delta, gap, solutions, lambdas, iter
     end
     
-    iter = iter+1
+#    iter = iter+1
   end
 
   return x_delta, gap, solutions, lambdas, iter 
 end
+

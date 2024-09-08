@@ -14,8 +14,8 @@ include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
 
-n = 9 # lenght(x)
-p = 5 # lenght(y)
+n = 5 # lenght(x)
+p = 3 # lenght(y)
 
 rho = 0.5
 
@@ -86,6 +86,6 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=1e5
+    max_iteration=1e7
 )
 @show A, y
