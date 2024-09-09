@@ -30,7 +30,7 @@ y = rand(p)
  end
  
 # evaluation point x_base
-x_base = ones(n)*1.0
+x_base = ones(n)*0.5
  
 lb_x = [-5 for in in x_base] 
 ub_x = [5 for in in x_base]

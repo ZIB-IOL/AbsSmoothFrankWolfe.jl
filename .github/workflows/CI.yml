@@ -10,25 +10,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - '1.9'
-          - '1'      
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macOS-13 # intel
-          - macOS-14 # arm
-        arch:
-          - x64
-          - aarch64
-        exclude:
-          - os: ubuntu-latest
-            arch: aarch64
-          - os: windows-latest
-            arch: aarch64
-          - os: macOS-13 
-            arch: aarch64
-          - os: macOS-14
+        include:
+          - version: '1'
+            os: ubuntu-latest
+            arch: x64
+          - version: '1.6'
+            os: ubuntu-latest
+            arch: x64
+          - version: '1'
+            os: windows-latest
+            arch: x64
+          - version: '1'
+            os: macOS-latest
             arch: x64
     steps:
       - uses: actions/checkout@v2
@@ -52,23 +45,14 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           files: lcov.info
-          token: ${{ secrets.CODECOV_TOKEN }}
 
-  docs:
-    name: Documentation
+  examples:
+    name: Examples
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
-      - run: |
-          julia --project=docs -e '
-            import Pkg; Pkg.add("Documenter")
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - run: julia --project=docs docs/make.jl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+      - shell: bash
+        run: julia examples/run_examples.jl

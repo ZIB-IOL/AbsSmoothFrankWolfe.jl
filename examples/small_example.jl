@@ -13,13 +13,13 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-# LQ
+# DEM 
  function f(x)
- 	return max(-x[1]-x[2], -x[1]-x[2]+x[1]^2+x[2]^2-1)
+ 	return max(5*x[1]+x[2], -5*x[1]+x[2], x[1]^2+x[2]^2+4*x[2])
  end
   
 # evaluation point x_base
-x_base = [-0.5,-0.5]
+x_base = [1.0,1.0]
 n = length(x_base)
  
 lb_x = [-5 for in in x_base] 
