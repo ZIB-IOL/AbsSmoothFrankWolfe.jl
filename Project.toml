@@ -1,7 +1,7 @@
 name = "AbsSmoothFW"
 uuid = "6d364d26-5f85-487f-81b3-ae189dbb3e92"
 authors = ["shtadinada"]
-version = "1.0.0-DEV"
+version = "0.2.0"
 
 [deps]
 ADOLC = "a7293fd6-5c8a-477e-b6cc-312e3ac044ef"
