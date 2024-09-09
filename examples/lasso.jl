@@ -88,4 +88,4 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     verbose=true,
     max_iteration=1e7
 )
-@show A, y
+

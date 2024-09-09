@@ -18,7 +18,7 @@ function as_frank_wolfe(
     momentum=nothing,
     epsilon=1.0e-7,
     max_iteration=1.0e7,
-    print_iter=1000.0,
+    print_iter=1.0,
     trajectory=false,
     verbose=false,
     memory_mode::FrankWolfe.MemoryEmphasis=FrankWolfe.InplaceEmphasis(),

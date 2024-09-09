@@ -13,14 +13,13 @@ include("../src/as_frank_wolfe.jl")
 include("../src/abs_linear.jl")
 include("../src/abs_lmo.jl")
 
-# CB3
+# LQ
  function f(x)
- 	return max(x[1]^4+x[2]^2, (2-x[1])^2+(2-x[2])^2, 2*exp(x[2]-x[1]))
+ 	return max(-x[1]-x[2], -x[1]-x[2]+x[1]^2+x[2]^2-1)
  end
- 
- 
+  
 # evaluation point x_base
-x_base = [2.0,2.0]
+x_base = [-0.5,-0.5]
 n = length(x_base)
  
 lb_x = [-5 for in in x_base] 
@@ -76,7 +75,7 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=6078
+    max_iteration=1e7
 )
 
 @show x_base

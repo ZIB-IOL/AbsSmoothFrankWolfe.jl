@@ -22,7 +22,7 @@ include("../src/abs_lmo.jl")
      return max(sum(l_1[i] for i in 1:n-1), sum(l_2[i] for i in 1:n-1))   
  end
  
-n = 40000
+n = 12000
 
 # evaluation point x_base
 x_base = [i%2==0 ? -1.5 : 2.0 for i in 1:n]
