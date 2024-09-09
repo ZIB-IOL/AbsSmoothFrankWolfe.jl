@@ -1,5 +1,7 @@
 # AbsSmoothFW.jl
 
+[![CI](https://github.com/ZIB-IOL/AbsSmoothFW.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/ZIB-IOL/AbsSmoothFW.jl/actions/workflows/CI.yml)
+
 [![DOI](https://zenodo.org/badge/793075266.svg)](https://zenodo.org/doi/10.5281/zenodo.11198550)
 
 This package is a toolbox for Abs-Smooth Frank-Wolfe algorithm.
@@ -14,7 +16,7 @@ Abs-Smooth Frank-Wolfe algorithms are designed to solve optimization problems of
 The most recent release is available on the main branch:
 
 ```julia
-Pkg.add(url="https://github.com/shtadinada/AbsSmoothFW.jl")
+Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFW.jl")
 ```
 
 ## Getting started
@@ -115,10 +117,6 @@ julia> x, v, primal, dual_gap, traj_data = as_frank_wolfe(
 )
 
 ```
-
-## Documentation
-
-To explore the content of the package, go to the ....
 
 Beyond those presented in the documentation, more test problems can be found in the `examples` folder.
 
