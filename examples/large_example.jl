@@ -81,7 +81,7 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=2
+    max_iteration=1e7
 )
 
 

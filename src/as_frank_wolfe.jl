@@ -35,7 +35,7 @@ function as_frank_wolfe(
     format_string = "%6s %13s %14e %14e %14e %14e %14e\n"
     function format_state(state)
         rep = (
-            FrankWolfe.st[Symbol(state.tt)],
+            FrankWolfe.steptype_string[Symbol(state.step_type)],
             string(state.t),
             Float64(state.primal),
             Float64(norm(v-x0)),
@@ -51,7 +51,7 @@ function as_frank_wolfe(
     primal = Inf
     v = []
     x = x0
-    tt = FrankWolfe.regular
+    step_type = FrankWolfe.ST_REGULAR
 
     if trajectory
         callback = FrankWolfe.make_trajectory_callback(callback, traj_data)
@@ -184,7 +184,7 @@ function as_frank_wolfe(
                 grad!,
                 lmo,
                 gradient,
-                tt,
+                step_type,
             )
             if callback(state) === false
                 break
