@@ -1,4 +1,4 @@
-module AbsSmoothFW
+module AbsSmoothFrankWolfe
 
 using FrankWolfe
 using SparseArrays

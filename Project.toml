@@ -1,4 +1,4 @@
-name = "AbsSmoothFW"
+name = "AbsSmoothFrankWolfe"
 uuid = "6d364d26-5f85-487f-81b3-ae189dbb3e92"
 authors = ["ZIB-IOL"]
 version = "0.2.0"
