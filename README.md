@@ -63,7 +63,7 @@ julia> lb_x = [-5 for in in x_base]
 julia> ub_x = [5 for in in x_base]
 
 # call the abs-linear form of f
-julia> abs_normal_form = abs_linear(x_base,f)
+julia> abs_normal_form = AbsSmoothFrankWolfe.abs_linear(x_base,f)
 
 # gradient formula in terms of abs-linearization
 julia> alf_a = abs_normal_form.Y
@@ -74,7 +74,7 @@ julia> z = abs_normal_form.z
 
 julia> s = abs_normal_form.num_switches
 
-julia> sigma_z = signature_vec(s,z)
+julia> sigma_z = AbsSmoothFrankWolfe.signature_vec(s,z)
 
 julia> function grad!(storage, x)
     c = vcat(alf_a', alf_b'.* sigma_z)
@@ -92,7 +92,7 @@ julia> @variable(o, lb_x[i] <= x[i=1:n] <= ub_x[i])
 julia> dualgap_asfw = Inf
 
 # abs-smooth lmo
-julia> lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
+julia> lmo_as = AbsSmoothFrankWolfe.AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 
 # define termination criteria using Frank-Wolfe 'callback' function
 julia> function make_termination_callback(state)
