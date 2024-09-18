@@ -1,6 +1,10 @@
 using Documenter
 using AbsSmoothFrankWolfe
 
+generated_path = joinpath(@__DIR__, "src")
+base_url = "https://github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl/tree/main/"
+isdir(generated_path) || mkdir(generated_path)
+
 open(joinpath(generated_path, "index.md"), "w") do io
     # Point to source license file
     println(
@@ -18,13 +22,13 @@ open(joinpath(generated_path, "index.md"), "w") do io
 end
 
 makedocs(;
-    sitename = "AbsSmoothFW.jl",
-    modules = [AbsSmoothFW],
+    sitename = "AbsSmoothFrankWolfe.jl",
+    modules = [AbsSmoothFrankWolfe],
     format = Documenter.HTML(),
     pages = [
-            "Home" => "index.md",
+            "Home" => "index.md"
    ],
 )
 
-deploydocs(; repo = "github.com/ZIB-IOL/AbsSmoothFW.jl", push_preview=true)
+deploydocs(; repo = "github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl/tree/main", push_preview=true)
 

@@ -1,3 +1,7 @@
+```@meta
+EditURL = "https://github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl/tree/main/README.md"
+```
+
 # AbsSmoothFrankWolfe.jl
 
 [![CI](https://github.com/ZIB-IOL/AbsSmoothFW.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/ZIB-IOL/AbsSmoothFW.jl/actions/workflows/CI.yml)
@@ -12,10 +16,17 @@ Abs-Smooth Frank-Wolfe algorithms are designed to solve optimization problems of
 
 ## Installation
 
-The most recent release is available on the main branch:
+The most recent release is available via the julia package manager, e.g., with
 
 ```julia
-Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFW.jl")
+using Pkg
+Pkg.add("AbsSmoothFrankWolfe")
+```
+
+or the main branch:
+
+```julia
+Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl")
 ```
 
 ## Getting started
@@ -24,30 +35,23 @@ Let's say we want to minimize the [LASSO](https://www.jstor.org/stable/2346178?s
 This is what the code looks like:
 
 ```julia
-julia> using FrankWolfe,SparseArrays,LinearAlgebra,JuMP,HiGHS,ADOLC
+julia> using AbsSmoothFrankWolfe,FrankWolfe,LinearAlgebra,JuMP,HiGHS
 
 julia> import MathOptInterface
 
 julia> const MOI = MathOptInterface
 
-julia> include("../src/aasm.jl")
+julia> n = 5 # choose lenght(x)
 
-julia> include("../src/as_frank_wolfe.jl")
-
-julia> include("../src/abs_linear.jl")
-
-julia> include("../src/abs_lmo.jl")
-
-julia> n = 5 # lenght(x)
-
-julia> p = 3 # lenght(y)
+julia> p = 3 # choose lenght(y)
 
 julia> rho = 0.5
 
-julia> A = rand(p,n)
+julia> A = rand(p,n) # randomly choose matrix A
 
-julia> y = rand(p)
+julia> y = rand(p) # randomly choose y
 
+#define the LASSO function
 julia>  function f(x)
 	
  	return 0.5*(norm(A*x - y))^2 + rho*norm(x)
@@ -63,7 +67,7 @@ julia> lb_x = [-5 for in in x_base]
 julia> ub_x = [5 for in in x_base]
 
 # call the abs-linear form of f
-julia> abs_normal_form = abs_linear(x_base,f)
+julia> abs_normal_form = AbsSmoothFrankWolfe.abs_linear(x_base,f)
 
 # gradient formula in terms of abs-linearization
 julia> alf_a = abs_normal_form.Y
@@ -74,14 +78,14 @@ julia> z = abs_normal_form.z
 
 julia> s = abs_normal_form.num_switches
 
-julia> sigma_z = signature_vec(s,z)
+julia> sigma_z = AbsSmoothFrankWolfe.signature_vec(s,z)
 
 julia> function grad!(storage, x)
     c = vcat(alf_a', alf_b'.* sigma_z)
     @. storage = c
 end
 
-# define the model
+# define the model using JuMP with HiGHS as inner solver
 julia> o = Model(HiGHS.Optimizer)
 
 julia> MOI.set(o, MOI.Silent(), true)
@@ -92,9 +96,9 @@ julia> @variable(o, lb_x[i] <= x[i=1:n] <= ub_x[i])
 julia> dualgap_asfw = Inf
 
 # abs-smooth lmo
-julia> lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
+julia> lmo_as = AbsSmoothFrankWolfe.AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 
-# define termination criteria
+# define termination criteria using Frank-Wolfe 'callback' function
 julia> function make_termination_callback(state)
  return function callback(state,args...)
   return state.lmo.dualgap_asfw[1] > 1e-2
@@ -104,7 +108,7 @@ end
 julia> callback = make_termination_callback(FrankWolfe.CallbackState)
 
 # call abs-smooth-frank-wolfe
-julia> x, v, primal, dual_gap, traj_data = as_frank_wolfe(
+julia> x, v, primal, dual_gap, traj_data = AbsSmoothFrankWolfe.as_frank_wolfe(
     f, 
     grad!, 
     lmo_as, 
