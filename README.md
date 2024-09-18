@@ -104,7 +104,7 @@ end
 julia> callback = make_termination_callback(FrankWolfe.CallbackState)
 
 # call abs-smooth-frank-wolfe
-julia> x, v, primal, dual_gap, traj_data = as_frank_wolfe(
+julia> x, v, primal, dual_gap, traj_data = AbsSmoothFrankWolfe.as_frank_wolfe(
     f, 
     grad!, 
     lmo_as, 
