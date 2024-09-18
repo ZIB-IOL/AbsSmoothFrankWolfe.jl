@@ -12,10 +12,17 @@ Abs-Smooth Frank-Wolfe algorithms are designed to solve optimization problems of
 
 ## Installation
 
-The most recent release is available on the main branch:
+The most recent release is available via the julia package manager, e.g., with
 
 ```julia
-Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFW.jl")
+using Pkg
+Pkg.add("AbsSmoothFrankWolfe")
+```
+
+or the main branch:
+
+```julia
+Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl")
 ```
 
 ## Getting started
@@ -24,30 +31,23 @@ Let's say we want to minimize the [LASSO](https://www.jstor.org/stable/2346178?s
 This is what the code looks like:
 
 ```julia
-julia> using FrankWolfe,SparseArrays,LinearAlgebra,JuMP,HiGHS,ADOLC
+julia> using AbsSmoothFrankWolfe,FrankWolfe,LinearAlgebra,JuMP,HiGHS
 
 julia> import MathOptInterface
 
 julia> const MOI = MathOptInterface
 
-julia> include("../src/aasm.jl")
+julia> n = 5 # choose lenght(x)
 
-julia> include("../src/as_frank_wolfe.jl")
-
-julia> include("../src/abs_linear.jl")
-
-julia> include("../src/abs_lmo.jl")
-
-julia> n = 5 # lenght(x)
-
-julia> p = 3 # lenght(y)
+julia> p = 3 # choose lenght(y)
 
 julia> rho = 0.5
 
-julia> A = rand(p,n)
+julia> A = rand(p,n) # randomly choose matrix A
 
-julia> y = rand(p)
+julia> y = rand(p) # randomly choose y
 
+#define the LASSO function
 julia>  function f(x)
 	
  	return 0.5*(norm(A*x - y))^2 + rho*norm(x)
@@ -81,7 +81,7 @@ julia> function grad!(storage, x)
     @. storage = c
 end
 
-# define the model
+# define the model using JuMP with HiGHS as inner solver
 julia> o = Model(HiGHS.Optimizer)
 
 julia> MOI.set(o, MOI.Silent(), true)
@@ -94,7 +94,7 @@ julia> dualgap_asfw = Inf
 # abs-smooth lmo
 julia> lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 
-# define termination criteria
+# define termination criteria using Frank-Wolfe 'callback' function
 julia> function make_termination_callback(state)
  return function callback(state,args...)
   return state.lmo.dualgap_asfw[1] > 1e-2
