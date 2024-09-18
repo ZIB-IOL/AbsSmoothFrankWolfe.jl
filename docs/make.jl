@@ -26,7 +26,8 @@ makedocs(;
     modules = [AbsSmoothFrankWolfe],
     format = Documenter.HTML(),
     pages = [
-            "Home" => "index.md"
+            "Home" => "index.md",
+            "References" => "references.md"
    ],
 )
 
