@@ -31,5 +31,5 @@ makedocs(;
    ],
 )
 
-deploydocs(; repo = "github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl/tree/main", push_preview=true)
+deploydocs(; repo = "github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl", devbranch="main", push_preview=true)
 
