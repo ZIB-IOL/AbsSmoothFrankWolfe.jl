@@ -10,7 +10,9 @@ remaining arguments: function pointer
 ###################################################################   
 
 # get signature vector up to accuracy of myeps
-
+"""
+Signature vector at the point 'x' upto certain accuracy
+"""
 function signature_vec(s, z; myeps = 1.0e-12)         
   sigma_z=sign.(z)                                  
   
