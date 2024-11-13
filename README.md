@@ -50,7 +50,7 @@ julia> function f(x)
  end
  
 # evaluation point x_base
-julia> x_base = ones(n)*1.0
+julia> x_base = [3.0,2.0]
 
 # box constraints
 julia> lb_x = [-5 for in in x_base]
