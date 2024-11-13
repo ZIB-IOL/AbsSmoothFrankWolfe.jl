@@ -31,7 +31,7 @@ Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl", rev="main")
 Let us consider the minimization of the abs-smooth function $max(x_1^4+x_2^2, (2-x_1)^2+(2-x_2)^2, 2*e^{(x_2-x_1)})$ subjected to simple box constraints $-5\leq x_i \leq 5$. Here is what the code will look like:
 
 ```julia
- using AbsSmoothFrankWolfe
+using AbsSmoothFrankWolfe
 using FrankWolfe
 using LinearAlgebra
 using JuMP
