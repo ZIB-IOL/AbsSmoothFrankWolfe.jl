@@ -3,11 +3,12 @@
 [![CI](https://github.com/ZIB-IOL/AbsSmoothFW.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/ZIB-IOL/AbsSmoothFW.jl/actions/workflows/CI.yml)
 [![DOI](https://zenodo.org/badge/793075266.svg)](https://zenodo.org/doi/10.5281/zenodo.11198550)
 
-This package is a toolbox for Abs-Smooth Frank-Wolfe algorithm.
+This package is a toolbox for non-smooth version of the Frank-Wolfe algorithm. 
 
-## Overview
+## Overview 
+Abs-Smooth Frank-Wolfe algorithms are designed to solve optimization problems of the form $\min\limits_{x\in C}$  $f(x)$ , for convex compact $C$ and an [abs-smooth](https://optimization-online.org/wp-content/uploads/2012/09/3597.pdf) function $f$. 
 
-Abs-Smooth Frank-Wolfe algorithms are designed to solve optimization problems of the form $\min\limits_{x\in C}$  $f(x)$ , for convex compact $C$ and an [abs-smooth](https://optimization-online.org/wp-content/uploads/2012/09/3597.pdf) function $f$.
+We solve such problems by using [ADOLC.jl](https://github.com/TimSiebert1/ADOLC.jl/tree/master) for the AD toolbox and using the [FrankWolfe.jl](https://github.com/ZIB-IOL/FrankWolfe.jl) for conditional gradient methods.
 
 
 ## Installation
@@ -22,38 +23,32 @@ Pkg.add("AbsSmoothFrankWolfe")
 or the main branch:
 
 ```julia
-Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl")
+Pkg.add(url="https://github.com/ZIB-IOL/AbsSmoothFrankWolfe.jl", rev="main")
 ```
 
 ## Getting started
 
-Let's say we want to minimize the [LASSO](https://www.jstor.org/stable/2346178?seq=1) problem: $\frac{1}{2}\|Ax - y\|_2^2 + \rho \|x\|_1$, subjected to simple box constraints. 
-This is what the code looks like:
+Let us consider the minimization of the abs-smooth function $max(x_1^4+x_2^2, (2-x_1)^2+(2-x_2)^2, 2*e^{(x_2-x_1)})$ subjected to simple box constraints $-5\leq x_i \leq 5$. Here is what the code will look like:
 
 ```julia
-julia> using AbsSmoothFrankWolfe,FrankWolfe,LinearAlgebra,JuMP,HiGHS
+julia> using AbsSmoothFrankWolfe
+
+julia> using FrankWolfe
+
+julia> using LinearAlgebra
+
+julia> using JuMP
+
+julia> using HiGHS
 
 julia> import MathOptInterface
 
 julia> const MOI = MathOptInterface
 
-julia> n = 5 # choose lenght(x)
-
-julia> p = 3 # choose lenght(y)
-
-julia> rho = 0.5
-
-julia> A = rand(p,n) # randomly choose matrix A
-
-julia> y = rand(p) # randomly choose y
-
-#define the LASSO function
-julia>  function f(x)
-	
- 	return 0.5*(norm(A*x - y))^2 + rho*norm(x)
-
+julia> function f(x)
+ 	return max(x[1]^4+x[2]^2, (2-x[1])^2+(2-x[2])^2, 2*exp(x[2]-x[1]))
  end
-
+ 
 # evaluation point x_base
 julia> x_base = ones(n)*1.0
 
@@ -115,7 +110,17 @@ julia> x, v, primal, dual_gap, traj_data = AbsSmoothFrankWolfe.as_frank_wolfe(
     verbose=true
 )
 
-```
+Vanilla Abs-Smooth Frank-Wolfe Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: FixedStep EPSILON: 1.0e-7 MAXITERATION: 1.0e7 TYPE: Float64
+MOMENTUM: nothing GRADIENTTYPE: Vector{Float64}
+LMO: AbsSmoothLMO
+[ Info: In memory_mode memory iterates are written back into x0!
 
-Beyond those presented in the documentation, more test problems can be found in the `examples` folder.
+-------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal    ||delta x||       Dual gap           Time         It/sec
+-------------------------------------------------------------------------------------------------
+     I             1   8.500000e+01   2.376593e+00   1.281206e+02   0.000000e+00            Inf
+  Last             7   2.000080e+00   2.000000e-05   3.600149e-04   2.885519e+00   2.425907e+00
+-------------------------------------------------------------------------------------------------
+x_final = [1.00002, 1.0]
 

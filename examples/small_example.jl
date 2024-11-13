@@ -75,5 +75,5 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     max_iteration=1e7
 )
 
-@show x_base
+println("x_final = ", x_base)
 

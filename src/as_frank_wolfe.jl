@@ -18,7 +18,7 @@ function as_frank_wolfe(
     momentum=nothing,
     epsilon=1.0e-7,
     max_iteration=1.0e7,
-    print_iter=1.0,
+    print_iter=1000,
     trajectory=false,
     verbose=false,
     memory_mode::FrankWolfe.MemoryEmphasis=FrankWolfe.InplaceEmphasis(),
@@ -193,7 +193,49 @@ function as_frank_wolfe(
                
         x = FrankWolfe.muladd_memory_mode(memory_mode, x, gamma, d)  
            
-    end    
+    end   
+    
+# recompute everything once for final verfication / do not record to trajectory though for now!
+# this is important as some variants do not recompute f(x) and the dual_gap regularly but only when reporting
+# hence the final computation.
+
+step_type = FrankWolfe.ST_LAST
+    grad!(gradient, x)
+    v = v
+    primal = f(x)
+    dual_gap = lmo.dualgap_asfw[1]
+    tot_time = (time_ns() - time_start) / 1.0e9
+    gamma = FrankWolfe.perform_line_search(
+        line_search,
+        t,
+        f,
+        grad!,
+        gradient,
+        x,
+        d,
+        1.0,
+        linesearch_workspace,
+        memory_mode,
+    )
+    if callback !== nothing
+        state = FrankWolfe.CallbackState(
+            t,
+            primal,
+            primal - dual_gap,
+            dual_gap,
+            tot_time,
+            x,
+            v,
+            d,
+            gamma,
+            f,
+            grad!,
+            lmo,
+            gradient,
+            step_type,
+        )
+        callback(state)
+    end 
 
     return x, v, primal, dual_gap, traj_data, x0
 end
