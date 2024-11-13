@@ -123,4 +123,15 @@ LMO: AbsSmoothLMO
   Last             7   2.000080e+00   2.000000e-05   3.600149e-04   2.885519e+00   2.425907e+00
 -------------------------------------------------------------------------------------------------
 x_final = [1.00002, 1.0]
+```
+
+## Documentation
+To explore the contents of this package, go to the [documentation](https://zib-iol.github.io/AbsSmoothFrankWolfe.jl/dev/).
+Beyond those presented in the documentation, many more use cases are implemented in the `examples` folder.
+
+
+
+
+
+
 
