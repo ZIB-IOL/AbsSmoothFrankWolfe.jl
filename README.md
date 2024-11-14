@@ -54,14 +54,14 @@ lb_x = [-5 for in in x_base]
 ub_x = [5 for in in x_base]
 
 # call the abs-linear form of f
-abs_normal_form = abs_linear(x_base,f)
+abs_normal_form = AbsSmoothFrankWolfe.abs_linear(x_base,f)
 
 alf_a = abs_normal_form.Y
 alf_b = abs_normal_form.J 
 z = abs_normal_form.z  
 s = abs_normal_form.num_switches
 
-sigma_z = signature_vec(s,z)
+sigma_z = AbsSmoothFrankWolfe.signature_vec(s,z)
 
 # gradient formula in terms of abs-linearization
 function grad!(storage, x)
@@ -78,7 +78,7 @@ MOI.set(o, MOI.Silent(), true)
 dualgap_asfw = Inf
 
 # abs-smooth lmo
-lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
+lmo_as = AbsSmoothFrankWolfe.AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 
 # define termination criteria
 
@@ -94,7 +94,7 @@ end
 callback = make_termination_callback(FrankWolfe.CallbackState)
 
 # call abs-smooth-frank-wolfe
-x, v, primal, dual_gap, traj_data = as_frank_wolfe(
+x, v, primal, dual_gap, traj_data = AbsSmoothFrankWolfe.as_frank_wolfe(
     f, 
     grad!, 
     lmo_as, 
