@@ -1,7 +1,5 @@
 using AbsSmoothFrankWolfe
-
 using FrankWolfe
-
 using LinearAlgebra
 using JuMP
 using HiGHS
