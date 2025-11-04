@@ -1,7 +1,10 @@
 name: CI
+
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test:
@@ -10,54 +13,66 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - '1.9'
-          - '1'      
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macOS-latest
-        arch:
-          - x64
+        version: ['1.9', '1']
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [x64]
         exclude:
           - os: ubuntu-latest
             arch: aarch64
           - os: windows-latest
             arch: aarch64
-          - os: macOS-13 
+          - os: macos-13
             arch: aarch64
-          - os: macOS-14
+          - os: macos-14
             arch: x64
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v2
+      # Checkout repository
+      - uses: actions/checkout@v4
+
+      # Setup Julia
+      - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: actions/cache@v2
-        env:
-          cache-name: cache-artifacts
+
+      # Cache Julia artifacts
+      - uses: actions/cache@v3
         with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          path: |
+            ~/.julia/artifacts
+            ~/.julia/packages
+            ~/.julia/compiled
+          key: ${{ runner.os }}-julia-${{ hashFiles('**/Project.toml') }}-${{ matrix.version }}
           restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
+            ${{ runner.os }}-julia-${{ matrix.version }}-
+            ${{ runner.os }}-julia-
+
+      # Build package
       - uses: julia-actions/julia-buildpkg@v1
+
+      # Run tests
       - uses: julia-actions/julia-runtest@v1
+
+      # Process coverage
       - uses: julia-actions/julia-processcoverage@v1
+
+      # Upload coverage to Codecov
       - uses: codecov/codecov-action@v4
         with:
           files: lcov.info
+          fail_ci_if_error: true
 
   examples:
     name: Examples
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
-      - shell: bash
+
+      - name: Run examples
         run: julia examples/run_examples.jl
+
