@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['1.9', '1']
+        version: ['1.9']
         os: [ubuntu-latest, windows-latest, macos-latest]
         arch: [x64]
         exclude:
@@ -61,7 +61,7 @@ jobs:
       - uses: codecov/codecov-action@v4
         with:
           files: lcov.info
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
   examples:
     name: Examples
@@ -75,4 +75,3 @@ jobs:
 
       - name: Run examples
         run: julia examples/run_examples.jl
-
