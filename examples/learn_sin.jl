@@ -12,20 +12,23 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 # Data
-w = 4
-xs = range(0, 2*pi, length=50)
+w = 7
+xs = range(0, 2*pi, length=110)
 X = reshape(collect(xs), :, 1)        
 Y = reshape(sin.(w .* xs), :, 1)            
 
-delta = step(xs)/2  
-xs_test = xs .+ delta 
+eps = 0.01
+xs_test = xs .+ (2rand(length(xs)) .- 1) .* eps
+
+#delta = step(xs)/2  
+#xs_test = xs .+ delta 
 
 X_test = reshape(collect(xs_test), :, 1)
 Y_test = reshape(sin.(w .* xs_test), :, 1)
 
 input_size  = size(X, 1)   
 output_size = size(Y, 1)   
-hidden_size = 64         
+hidden_size = 128       
 
 
 # Weights & Biases
@@ -118,11 +121,11 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     line_search = FrankWolfe.FixedStep(1.0),
     callback=callback,
     verbose=true,
-    max_iteration=5e3
+    max_iteration=1e4
 )
 
 
-#--------TEST--------
+#TEST
 
 function predict(x_vec, X_in)
     W1, b1, W2, b2 = unpack_params(x_vec)
@@ -136,14 +139,48 @@ Y_pred_test  = predict(x, X_test)
 
 train_loss = sum((Y_pred .- Y).^2) / length(Y)
 test_loss  = sum((Y_pred_test .- Y_test).^2) / length(Y_test)
+#@show test_loss, Y_pred_test .- Y_test
 
 println("\nTraining MSE: ", train_loss)
 println("Test MSE: ", test_loss)
 
+#xs_dense = range(0, 2*pi, length=200)  
+#plot(xs_dense, sin.(w .* xs_dense), label="True sin(w⋅x)", lw=1, legend=false)
+#scatter!(xs, Y, label="Train points", ms=2, color=:blue)
+#scatter!(xs_test, vec(Y_pred_test), label="Predicted test", ms=2, color=:orange)
+#plot(xs, vec(Y_pred), label="trained", lw=1, color=:blue, legend=false)
+#plot!(xs_test, vec(Y_pred_test), label="tested", lw=1, color=:green)
 
-xs_dense = range(0, 2*pi, length=200)  
-plot(xs_dense, sin.(w .* xs_dense), label="True sin(w⋅x)", lw=1)
-scatter!(xs, Y, label="Train points", ms=2, color=:blue)
-scatter!(xs_test, vec(Y_pred_test), label="Predicted test", ms=2, color=:orange)
-savefig("sin_w$(w).pdf")
+#vline!(xs, color=:blue, lw=0.5, alpha=0.4, label="")
+#vline!(xs_test, color=:green, lw=0.5, alpha=0.4, label="")
+#savefig("sin_w$(w)_50.pdf")
+
+# Number of training samples
+N = length(Y)
+
+# Training loss per iteration (MSE)
+train_losses = primal ./ N
+
+# Plot training loss vs iterations
+plot(train_losses,
+     yscale = :log10,
+     xlabel = "Iteration",
+     ylabel = "Training MSE",
+     title = "Training Loss vs Iterations",
+     lw = 1)
+savefig("training_loss_vs_iterations.pdf")
+
+test_losses = [
+    sum((predict(traj_data.xs[k], X_test) .- Y_test).^2) / length(Y_test)
+    for k in 1:length(traj_data.xs)
+]
+
+plot(test_losses,
+     yscale = :log10,
+     xlabel = "Iteration",
+     ylabel = "Test MSE",
+     title = "Test Loss vs Iterations",
+     lw = 1,
+     color = :red)
+savefig("test_loss_vs_iterations.pdf")
 

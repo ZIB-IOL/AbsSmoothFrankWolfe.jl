@@ -9,6 +9,7 @@ mutable struct AbsSmoothLMO <: FrankWolfe.LinearMinimizationOracle
     x_base
     f
     n
+    s
     lb_x 
     ub_x
     dualgap_asfw
@@ -16,21 +17,23 @@ mutable struct AbsSmoothLMO <: FrankWolfe.LinearMinimizationOracle
     iteration_counter::Int # for inner iterations
 end
 
-AbsSmoothLMO(o, x_base, f, n, lb_x, ub_x, dualgap_asfw) = AbsSmoothLMO(o, x_base, f, n, lb_x, ub_x, dualgap_asfw, 0, 0) 
+AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw) = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw, 0, 0) 
 
 # abs-smooth custom extreme point -- AASM
 
 function FrankWolfe.compute_extreme_point(lmo::AbsSmoothLMO, direction; kwargs...)
     f = lmo.f
     n = lmo.n
+    s = lmo.s
     lb_x = lmo.lb_x
     ub_x = lmo.ub_x
     x_base = lmo.x_base
     inner_iteration = lmo.iteration_counter
     t = lmo.fw_iteration_counter
-    alpha = 2/(t+3)   
-    x_delta, gap, _, _, iter = aasm(x_base, alpha, f, n, ub_x, lb_x, inner_iteration)
-    
+    alpha = 1/(t+3)  
+    @show alpha 
+    x_delta, gap, _, _, iter = aasm(x_base, alpha, f, n, s, ub_x, lb_x, inner_iteration)
+    @show x_delta
     # update abs-smooth dual gap
     lmo.dualgap_asfw = gap
     
