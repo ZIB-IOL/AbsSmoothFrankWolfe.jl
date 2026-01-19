@@ -6,30 +6,30 @@ using LinearAlgebra
 using JuMP
 using HiGHS
 
-
 import MathOptInterface
 const MOI = MathOptInterface
 
-n = 5 # lenght(x)
-p = 3 # lenght(y)
+n = 11 # lenght(x)
+p = 442 # lenght(y)
 
-rho = 0.5
+rho = 0.005
 
 A = rand(p,n)
+@show cond(A)
 y = rand(p)
 
 # LASSO
  function f(x)
 	
- 	return 0.5*(norm(A*x - y))^2 + rho*norm(x)
+ 	return 0.5*(dot(A*x - y, A*x - y)) + rho*norm(x,1)
 
  end
  
 # evaluation point x_base
 x_base = ones(n)*0.5
  
-lb_x = [-5 for in in x_base] 
-ub_x = [5 for in in x_base]
+lb_x = [-5.0 for in in x_base] 
+ub_x = [5.0 for in in x_base]
 
 # call the abs-linear form of f
 abs_normal_form = abs_linear(x_base,f)
@@ -66,7 +66,7 @@ lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 # Here, we will implement a callback that terminates the algorithm if ASFW Dual gap < eps.
 function make_termination_callback(state)
  return function callback(state,args...)
-  return state.lmo.dualgap_asfw[1] > 1e-2
+  return state.lmo.dualgap_asfw[1] > 1e-3
  end
 end
 
@@ -85,3 +85,4 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     max_iteration=1e7
 )
 
+println("x_final = ", x_base)
