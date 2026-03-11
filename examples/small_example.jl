@@ -4,35 +4,37 @@ using LinearAlgebra
 using JuMP
 using HiGHS
 
-
 import MathOptInterface
 const MOI = MathOptInterface
 
-# DEM 
+# Wong 2
  function f(x)
- 	return max(5*x[1]+x[2], -5*x[1]+x[2], x[1]^2+x[2]^2+4*x[2])
+ 	return max(x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45,
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(3*(x[1]-2)^2+4*(x[2]-3)^2+2*x[3]^2-7*x[4]-120),
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(5*x[1]^2+8*x[2]+(x[3]-6)^2-2*x[4]-40),
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(0.5*(x[1]-8)^2+2*(x[2]-4)^2+3*x[5]^2-x[6]-30),
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(x[1]^2+2*(x[2]-2)^2-2*x[1]*x[2]+14*x[5]-6*x[6]),
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(4*x[1]+5*x[2]-3*x[7]+9*x[8]-105),
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(10*x[1]-8*x[2]-17*x[7]+2*x[8]),
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(-3*x[1]+6*x[2]+12*(x[9]-8)^2-7*x[10]),
+ 		 x[1]^2+x[2]^2+x[1]*x[2]-14*x[1]-16*x[2]+(x[3]-10)^2+4*(x[4]-5)^2+(x[5]-3)^2+2*(x[6]-1)^2+5*x[7]^2+7*(x[8]-11)^2+2*(x[9]-10)^2+(x[10]-7)^2+45+10*(-8*x[1]+2*x[2]+5*x[9]-2*x[10]-12))
  end
   
 # evaluation point x_base
-x_base = [1.0,1.0]
+x_base = [2.0,3.0,5.0,5.0,1.0,2.0,7.0,3.0,6.0,10.0]
 n = length(x_base)
  
-lb_x = [-5 for in in x_base] 
-ub_x = [5 for in in x_base]
+lb_x = [-10.0 for in in x_base] 
+ub_x = [10.0 for in in x_base]
 
 # call the abs-linear form of f
-abs_normal_form = abs_linear(x_base,f)
-
-alf_a = abs_normal_form.Y
-alf_b = abs_normal_form.J 
-z = abs_normal_form.z  
+abs_normal_form = abs_linear(x_base,f)  
 s = abs_normal_form.num_switches
-
-sigma_z = signature_vec(s,z)
 
 # gradient formula in terms of abs-linearization
 function grad!(storage, x)
-    c = vcat(alf_a', alf_b'.* sigma_z)
+    c = ones(n+s)
+    #c = vcat(alf_a', alf_b'.* sigma_z)
     @. storage = c
 end
 
@@ -72,6 +74,6 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     verbose=true,
     max_iteration=1e7
 )
-
+@show f(x_base)
 println("x_final = ", x_base)
 
