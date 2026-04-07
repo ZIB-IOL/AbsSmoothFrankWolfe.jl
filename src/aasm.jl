@@ -7,8 +7,6 @@ lb_x, ub_x: lower and upper bound on x
 alpha: step size of FW method
 remaining arguments: function pointer
 """
-###################################################################   
-
 # get signature vector up to accuracy of myeps
 """
 Signature vector at the point 'x' upto certain accuracy
@@ -27,11 +25,9 @@ end
 
 # check optimality
 
-###############################################################################
 # Highs/GLPK uses L(x,z,lambda,mu) = f(x,z) - lambda^T eq_const - mu^T ineq_const
 # this is different to the derivation in the ASM
 #  => use -lambda in normal growth condition!!
-###############################################################################
 
 function check_normalGrowth(s, b, L, lambda, z; myeps=1.0e-12)   
 
@@ -48,11 +44,9 @@ function check_normalGrowth(s, b, L, lambda, z; myeps=1.0e-12)
  
       
     if mu<0 && abs(z[i])<= myeps && abs(lambda[i])>=myeps
-  #  @show mu
       if mu < min_mu_val
         index = i
         min_mu_val = mu
-        #  
       end  
     end
   end
@@ -60,137 +54,97 @@ function check_normalGrowth(s, b, L, lambda, z; myeps=1.0e-12)
   
   end
 
-###############################################################################
-simplex_count = []
+function aasm(x_base, alpha, f_eval, n, s, ub_x, lb_x, outer_iter; max_inner_iter=10, model="model", mps=false) 
 
-# adapted active signature method (AASM)
-function aasm(x_base, alpha, f_eval, n, s, ub_x, lb_x, outer_iter; max_inner_iter=2, model="model", mps=false) 
-
-# to store asm information
- lambdas = []
- solutions = []
-   
- iter = 1
- x_delta = copy(x_base)
- gap = Inf
-
- abs_normal_form = abs_linear(x_base,f_eval)
-
- alf_a = copy(abs_normal_form.Y)
- alf_b = copy(abs_normal_form.J) 
-   
- z_base = copy(abs_normal_form.z)
- sigma_z = signature_vec(s,z_base)
-   
- Z = copy(abs_normal_form.Z)  
- L = copy(abs_normal_form.L)
-
- y = copy(abs_normal_form.y)
-   
- cz = z_base - L * abs.(z_base)
- z_pl = copy(z_base)
-  
- while iter <= max_inner_iter  
-	println("----- inner iteration:  $iter / $max_inner_iter -----")
-	o = Model(HiGHS.Optimizer)
-	MOI.set(o, MOI.Silent(), true)
-
-	@variable(o, xz[1:n+s])
-   
-	z_pl
-	set_start_value.(xz[1:n], x_delta)
-	set_start_value.(xz[n+1:end], z_pl)
-
-	alf_a
-	alf_b
-	sigma_z
-	c = vcat(alf_a', alf_b' .* sigma_z)      
-	@objective(o, Min, dot(c, xz))
-  
-################## define bound constraints ############################## 
-# bounds on x from original problem - linear shift due to linearization
-# here we compute \Delta v hence
-# v \in C => lb_v <= v <= ub_v
-# lb_v-x_base <= v-x_base <= ub_v-x_base
-# alpha(lb_v-x_base) <= alpha(v-x_base) <= alpha(ub_v-x_base)
-# alpha(lb_v-x_base) <= x_delta <= alpha(ub_v-x_base)
-##########################################################################
+    # to store asm information
+    lambdas = []
+    solutions = []
+    simplex_count = [] 
     
-	@constraint(o, xz[1:n] <= min.(alpha*(ub_x-x_base),1.0e30))          
-	@constraint(o, xz[1:n] >= max.(alpha*(lb_x-x_base),-1.0e30))         
+    iter = 1
+    x_delta = copy(x_base)
+    gap = Inf
 
-	@constraint(o, sigma_z .* xz[n+1:end] .>= 0.0)  
+    abs_normal_form = abs_linear(x_base,f_eval)
+
+    alf_a = copy(abs_normal_form.Y)
+    alf_b = copy(abs_normal_form.J) 
     
-	Z
-	L
-	A = [Z L.*sigma_z'-I]
+    z_base = copy(abs_normal_form.z)
+    sigma_z = signature_vec(s,z_base)
+    
+    Z = copy(abs_normal_form.Z)  
+    L = copy(abs_normal_form.L)
+
+    y = copy(abs_normal_form.y)
+    
+    cz = z_base - L * abs.(z_base)
+    z_pl = copy(z_base)
+
+    while iter <= max_inner_iter  
+        println("----- inner iteration:  $iter / $max_inner_iter -----")
+
+        o = Model(HiGHS.Optimizer)
+        MOI.set(o, MOI.Silent(), true)
+        @variable(o, xz[1:n+s])
+
+        set_start_value.(xz[1:n], x_delta)
+        set_start_value.(xz[n+1:end], z_pl)
+        
+        alf_a,alf_b,sigma_z
+
+        c = vcat(alf_a', alf_b' .* sigma_z)      
+        @objective(o, Min, dot(c, xz))
   
-	cz
-	c1 = @constraint(o, A*xz .== -cz)
-   
-	optimize!(o)
+        @constraint(o, xz[1:n] .<= min.(alpha*(ub_x .- x_base), 1.0e30))          
+        @constraint(o, xz[1:n] .>= max.(alpha*(lb_x .- x_base), -1.0e30))         
 
-	# Retrieve the solver information to get the number of simplex iterations
-	# Get the HiGHS backend
-	optimizer = backend(o)  
-	# Retrieve simplex iterations
-	info = MOI.get(optimizer, MOI.SimplexIterations())  
+        @constraint(o, sigma_z .* xz[n+1:end] .>= 0.0)  
+        
+        Z,L,sigma_z
+        A = [Z L.*sigma_z'-I]
+        c1 = @constraint(o, A*xz .== -cz)
+        
+        optimize!(o)
 
-	push!(simplex_count, info)
-	#@show simplex_count
-     
-	total_simplex_count = 0
+        optimizer = backend(o)  
+        info = MOI.get(optimizer, MOI.SimplexIterations())  
 
-     
-	for value in simplex_count
-	total_simplex_count += value
+        push!(simplex_count, info)
+        
+        total_simplex_count = sum(simplex_count) 
+          
+        myxz = [value(var) for var in all_variables(o)]    
+        myxz = round.(myxz, digits=5)
+        push!(solutions, myxz)
+        
+        x_delta = myxz[1:n]
+        z_pl = myxz[n+1:n+s]
+            
+        fpl_new = y + alf_a*x_delta + alf_b*(abs.(z_pl) - abs.(z_base))  
+        
+        if (fpl_new[1] > f_eval(x_base)[1] + 1.0e-12) || abs(fpl_new[1] - f_eval(x_base)[1]) < 1.0e-12
+            gap = [0.0]        
+        end
 
-	end
-     
-	@show total_simplex_count 
-
+        mylambda = round.(dual.(c1), digits=3)
+        push!(lambdas, mylambda)
+        
+        gap = (f_eval(x_base) .- fpl_new)/alpha
          
-	myxz = [value(var) for var in all_variables(o)]    
-	myxz = round.(myxz, digits=5)
-	push!(solutions, myxz)
-   
-	x_delta = myxz[1:n]
-	#@show x_delta + x_base
-   
-	z_pl = myxz[n+1:n+s]
-	   
-	# new abs linearization  
-	y
-	alf_a
-	alf_b
-	z_base
-	fpl_new = y + alf_a*x_delta + alf_b*(abs.(z_pl) - abs.(z_base))  
-	
-    
-	if (fpl_new[1] > f_eval(x_base)[1] + 1.0e-12) || abs(fpl_new[1] - f_eval(x_base)[1]) < 1.0e-12
-	gap = [0.0]  #fpl_new = f_eval(x_base)		
-	end
-
-	mylambda = round.(dual.(c1), digits=3)
-	push!(lambdas, mylambda)
-   
-	# dual-gap for abs-smooth case
-	gap = (f_eval(x_base) .- fpl_new)/alpha
-       
-	# local optimality criterion
-	index_mu = check_normalGrowth(s, alf_b, L, mylambda, z_pl) 
-   
-	if index_mu > -1
-	# current point not optimal, change polyhedron 
-	sigma_z[index_mu]=-mylambda[index_mu]/abs(mylambda[index_mu]);   
-	else
-	# local minimizer reached     
-	return x_delta, gap, solutions, lambdas, iter
-	end
-    
-	iter = iter+1
- end
-
- return x_delta, gap, solutions, lambdas, iter 
+        # local optimality criterion    
+        index_mu = check_normalGrowth(s, alf_b, L, mylambda, z_pl) 
+        
+        if index_mu > -1
+            sigma_z[index_mu] = -mylambda[index_mu]/abs(mylambda[index_mu])    
+        else
+            println("Local minimizer reached at iteration $iter. Exiting early.")
+            total_inner_simplex = sum(simplex_count)
+            return x_delta, gap, solutions, lambdas, iter, total_inner_simplex
+        end
+        
+        iter = iter+1
+    end
+	total_inner_simplex = sum(simplex_count)
+    return x_delta, gap, solutions, lambdas, iter, total_inner_simplex
 end
-

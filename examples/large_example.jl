@@ -6,41 +6,34 @@ using LinearAlgebra
 using JuMP
 using HiGHS
 
-
 import MathOptInterface
 const MOI = MathOptInterface
 
-
-# Chained crescent I vv
+# Chained CB3 I vv
  function f(x)
-     n = length(x)
-     l_1 = [x[i]^2+(x[i+1]-1)^2+x[i+1]-1 for i in 1:n-1]
-     l_2 = [-x[i]^2-(x[i+1]-1)^2+x[i+1]+1 for i in 1:n-1]
-     return max(sum(l_1[i] for i in 1:n-1), sum(l_2[i] for i in 1:n-1))   
+    n = length(x)
+    l_1 = [x[i]^4+x[i+1]^2 for i in 1:n-1]
+    l_2 = [(2-x[i])^2+(2-x[i+1])^2 for i in 1:n-1]
+    l_3 = [2*exp(-x[i]+x[i+1]) for i in 1:n-1]
+    return sum([max(l_1[i], l_2[i], l_3[i]) for i in 1:n-1])
  end
  
-n = 120
-
+ 
+n = 100
 # evaluation point x_base
-x_base = [i%2==0 ? -1.5 : 2.0 for i in 1:n]
+x_base = ones(n) * 2.0
+
 n = length(x_base)
 
-lb_x = [-1.9 for in in x_base] 
-ub_x = [2.4 for in in x_base]
+lb_x = [-3.0 for in in x_base] 
+ub_x = [3.0 for in in x_base]
 
 # call the abs-linear form of f
-abs_normal_form = abs_linear(x_base,f)
-
-alf_a = abs_normal_form.Y 
-alf_b = abs_normal_form.J
-z = abs_normal_form.z  
+abs_normal_form = AbsSmoothFrankWolfe.abs_linear(x_base,f)
 s = abs_normal_form.num_switches
-
-sigma_z = signature_vec(s,z)
-
 # gradient formula in terms of abs-linearization
 function grad!(storage, x)
-    c = vcat(alf_a', alf_b'.* sigma_z)
+    c = ones(n+s)
     @. storage = c
 end
 
@@ -53,7 +46,7 @@ MOI.set(o, MOI.Silent(), true)
 dualgap_asfw = Inf
 
 # abs-smooth lmo
-lmo_as = AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
+lmo_as = AbsSmoothFrankWolfe.AbsSmoothLMO(o, x_base, f, n, s, lb_x, ub_x, dualgap_asfw)
 
 # define termination criteria
 
@@ -69,7 +62,7 @@ end
 callback = make_termination_callback(FrankWolfe.CallbackState)
 
 # call abs-smooth-frank-wolfe
-x, v, primal, dual_gap, traj_data = as_frank_wolfe(
+x, v, primal, dual_gap, traj_data = AbsSmoothFrankWolfe.as_frank_wolfe(
     f, 
     grad!, 
     lmo_as, 
@@ -81,4 +74,4 @@ x, v, primal, dual_gap, traj_data = as_frank_wolfe(
     max_iteration=1e7
 )
 
-
+println("Grand Total Simplex Steps: ", lmo_as.total_simplex_count)
