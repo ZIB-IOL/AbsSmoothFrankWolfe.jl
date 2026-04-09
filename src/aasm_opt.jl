@@ -41,7 +41,7 @@ function check_normalGrowth(s, b, L, lambda, z; myeps=1.0e-12)
   
   end
   
-function aasm(x_base, alpha, f_eval, n, s, ub_x, lb_x, outer_iter; max_inner_iter=100, model="model", mps=false) 
+function aasm(x_base, alpha, f_eval, n, s, ub_x, lb_x, outer_iter; max_inner_iter=10, model="model", mps=false) 
 
     # to store asm information
     lambdas = []
@@ -122,7 +122,7 @@ function aasm(x_base, alpha, f_eval, n, s, ub_x, lb_x, outer_iter; max_inner_ite
             gap = [0.0]        
         end
 
-        mylambda = round.(dual.(c1), digits=3)
+        mylambda = round.(dual.(c1), digits=5)
         push!(lambdas, mylambda)
         
         gap = (f_eval(x_base) .- fpl_new)/alpha

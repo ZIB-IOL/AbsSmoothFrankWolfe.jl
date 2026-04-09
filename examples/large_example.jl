@@ -9,19 +9,15 @@ using HiGHS
 import MathOptInterface
 const MOI = MathOptInterface
 
-# Chained CB3 I vv
+# Chained Mifflin 2  
  function f(x)
-    n = length(x)
-    l_1 = [x[i]^4+x[i+1]^2 for i in 1:n-1]
-    l_2 = [(2-x[i])^2+(2-x[i+1])^2 for i in 1:n-1]
-    l_3 = [2*exp(-x[i]+x[i+1]) for i in 1:n-1]
-    return sum([max(l_1[i], l_2[i], l_3[i]) for i in 1:n-1])
+     n = length(x)
+     l_1 = [-x[i]+2*(x[i]^2+x[i+1]^2-1)+1.75*abs(x[i]^2+x[i+1]^2-1) for i in 1:n-1]
+     return sum(l_1[i] for i in 1:n-1)
  end
  
- 
-n = 100
-# evaluation point x_base
-x_base = ones(n) * 2.0
+ n=200
+ x_base = ones(n)
 
 n = length(x_base)
 

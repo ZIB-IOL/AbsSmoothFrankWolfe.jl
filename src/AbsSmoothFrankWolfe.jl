@@ -13,7 +13,7 @@ const MOI = MathOptInterface
 
 export abs_linear, AbsSmoothLMO, as_frank_wolfe, signature_vec
 
-include("aasm.jl")
+include("aasm_opt.jl")
 include("as_frank_wolfe.jl")
 include("abs_linear.jl")
 include("abs_lmo.jl")
