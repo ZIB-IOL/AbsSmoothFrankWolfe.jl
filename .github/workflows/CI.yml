@@ -71,7 +71,7 @@ jobs:
 
       - uses: julia-actions/setup-julia@v2
         with:
-          version: '1.10'
+          version: ['1.10']
 
       - name: Run examples
         run: julia examples/run_examples.jl
